@@ -8,7 +8,7 @@
             <h2 class="h4 fw-semibold text-dark mb-1">Schedules</h2>
             <p class="text-muted small mb-0">Manage all your Schedules</p>
         </div>
-        <a href="{{ route('user-create') }}" class="btn btn-success">
+        <a href="{{ route('user.create') }}" class="btn btn-success">
             + Add Users
         </a>
     </div>

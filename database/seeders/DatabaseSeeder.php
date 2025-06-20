@@ -14,23 +14,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(RolePermissionSeeder::class);
         // User::factory(10)->create();
 
-<<<<<<< Updated upstream
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-=======
-        // ...existing code...
-        // $this->call(UsersWithRolesAndPermissionsSeeder::class);
-        $this->call(RolePermissionSeeder::class);
-        // ...existing code...
-        // User::factory()->create([
-        //     'username' => 'testuser',
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        //]);
->>>>>>> Stashed changes
+// <<<<<<< Updated upstream
+//         User::factory()->create([
+//             'name' => 'Test User',
+//             'email' => 'test@example.com',
+//         ]);
+// =======
+//         // ...existing code...
+//         // $this->call(UsersWithRolesAndPermissionsSeeder::class);
+//         // ...existing code...
+//         // User::factory()->create([
+//         //     'username' => 'testuser',
+//         //     'name' => 'Test User',
+//         //     'email' => 'test@example.com',
+//         //]);
+// >>>>>>> Stashed changes
     }
 }

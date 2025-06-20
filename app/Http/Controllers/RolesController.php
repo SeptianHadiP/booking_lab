@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use App\Models\User;
 
 class RolesController extends Controller
 {
@@ -18,10 +20,9 @@ class RolesController extends Controller
 
     public function index()
     {
-        return view('dashboard.pages.roles.index', [
-            // 'name' => $this->name,
-            // 'allPermissions' => $this->allPermissions,
-        ]);
+        $users = User::get();
+        $roles = Role::get();
+        return view('dashboard.pages.roles.index', compact("roles"));
     }
 
     public function create()

@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class UserController extends Controller
 {
     public function index()
     {
-        return view('dashboard.pages.users.index', [
-            // 'name' => $this->name,
-            // 'allPermissions' => $this->allPermissions,
-        ]);
+        $users = User::get();
+        return view('dashboard.pages.users.index', compact("users"));
+        //  [
+        //     // 'name' => $this->name,
+        //     // 'allPermissions' => $this->allPermissions,
+        // ]);
     }
 
     public function create()

@@ -1,10 +1,10 @@
 <!-- resources/views/components/layout3/sidebar.blade.php -->
 <div id="sidebar" class="bg-white border-end shadow-sm position-fixed h-100" style="width: 250px;">
     <div class="text-center py-4 border-bottom">
-        <!-- <img src="https://ubharajaya.ac.id/wp-content/uploads/2022/07/ubj_nama-copy.png" width="100" alt=""> -->
-        <h4 class="text-primary fw-bold mb-0">
+        <img src="https://ubharajaya.ac.id/wp-content/uploads/2022/07/ubj_nama-copy.png" width="150" alt="">
+        <!-- <h4 class="text-primary fw-bold mb-0">
             <i class="bi bi-building-fill me-2"></i>Hotel
-        </h4>
+        </h4> -->
     </div>
     <ul class="nav flex-column px-3 pt-3">
         <li class="nav-item mb-1">
@@ -13,7 +13,7 @@
             </a>
         </li>
         <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('schedules') || request()->is('schedule-create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('schedule.index')}}"><i class="bi bi-journal-bookmark-fill me-2"></i>Schedules</a>
+            <a class="nav-link d-flex align-items-center {{ request()->is('schedulings') || request()->is('schedulings-create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('schedulings.index')}}"><i class="bi bi-journal-bookmark-fill me-2"></i>schedulings</a>
         </li>
         <li class="nav-item mb-1">
             <a class="nav-link d-flex align-items-center {{ request()->is('users') || request()->is('user-create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('user.index')}}">

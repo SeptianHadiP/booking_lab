@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\SchedulesController;
+use App\Http\Controllers\SchedulingsController;
 use Illuminate\Support\Facades\Route;
 
 // Route::redirect('/', '/login');
@@ -70,8 +70,13 @@ Route::get('/role-create', [RolesController::class, 'create'])->middleware(['aut
 Route::get('/users', [UserController::class, 'index'])->middleware(['auth', 'verified'])->name('user.index');
 Route::get('/user-create', [UserController::class, 'create'])->middleware(['auth', 'verified'])->name('user.create');
 
-Route::get('/schedules', [SchedulesController::class, 'index'])->middleware(['auth', 'verified'])->name('schedule.index');
-Route::get('/schedule-create', [SchedulesController::class, 'create'])->middleware(['auth', 'verified'])->name('schedule.create');
+
+Route::get('/schedules', [SchedulingsController::class, 'index'])->middleware(['auth', 'verified'])->name('schedulings.index');
+Route::get('/tambah-jadwal', [SchedulingsController::class, 'create'])->middleware(['auth', 'verified'])->name('scheduling.create');
+Route::post('/submit-praktikum', [SchedulingsController::class, 'store'])->middleware(['auth', 'verified'])->name('scheduling.store');
+Route::get('/scheduling/{id}/edit', [SchedulingsController::class, 'update'])->name('scheduling.update');
+Route::delete('/schedule/{id}', [SchedulingsController::class, 'destroy'])->name('scheduling.destroy');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
