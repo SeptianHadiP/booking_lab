@@ -14,21 +14,19 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::create(['name' => 'tambah-user']);
-        Permission::create(['name' => 'edit-user']);
-        Permission::create(['name' => 'hapus-user']);
-        Permission::create(['name' => 'lihat-user']);
-
-        Role::create(['name' => 'kalab'])
-            ->givePermissionTo([
-                'tambah-user',
-                'edit-user',
-                'hapus-user',
-                'lihat-user',
-            ]);
-        Role::create(['name' => 'aslab'])
-            ->givePermissionTo([
-                'lihat-user',
-            ]);
+        // Create permissions
+        $permissions = [
+            'view schedule',
+            'edit schedule',
+            'delete schedule',
+            'create schedule',
+            'view user',
+            'edit user',
+            'delete user',
+            'create user',
+        ];
+        foreach ($permissions as $perm) {
+            Permission::firstOrCreate(['name' => $perm]);
+        }
     }
 }
