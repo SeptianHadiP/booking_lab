@@ -5,13 +5,8 @@
 
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="h4 fw-semibold text-dark mb-1">Jadwal Praktikum</h2>
-            <p class="text-muted small mb-0">Kelola semua jadwal yang telah ditambahkan</p>
-        </div>
-        <a href="{{ route('schedulings.create') }}" class="btn btn-success">
-            + Tambah Jadwal
-        </a>
+        <h2 class="h4 fw-semibold text-dark mb-3">Daftar Jadwal & Dokumentasi</h2>
+        <p class="text-muted mb-4">Berikut adalah daftar jadwal praktikum beserta status dokumentasinya.</p>
     </div>
 
     <!-- Notifikasi -->
@@ -20,7 +15,7 @@
     @endif
 
     <!-- Include Tabel -->
-    @include('components.schedule-table', ['schedules' => $schedules])
+    @include('components.documentation-table', ['schedules' => $schedules])
 
 </div>
 @endsection

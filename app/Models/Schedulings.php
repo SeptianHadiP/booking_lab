@@ -18,4 +18,10 @@ class Schedulings extends Model
         'modul_praktikum',
         'tools_software',
     ];
+
+    // app/Models/Schedulings.php
+    public function documentation()
+    {
+        return $this->hasOne(Documentation::class, 'scheduling_id');
+    }
 }
