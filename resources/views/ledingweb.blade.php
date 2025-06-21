@@ -120,7 +120,7 @@
 
   <header>
     <h1><i class="fas fa-university"></i> Bhayangkara University</h1>
-    <a href="/login" class="login-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+    <a href="{{ route('login') }}" class="login-link"><i class="fas fa-sign-in-alt"></i> Login</a>
   </header>
 
   <div class="container">
