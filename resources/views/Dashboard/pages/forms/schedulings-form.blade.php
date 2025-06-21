@@ -1,4 +1,4 @@
-<form action="{{ isset($schedule) ? route('scheduling.update', $schedule->id) : route('scheduling.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ isset($schedule) ? route('schedulings.update', $schedule->id) : route('schedulings.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     @if(isset($schedule))
         @method('PUT')
@@ -101,7 +101,21 @@
             placeholder="Contoh: Visual Studio Code, XAMPP, Wireshark">{{ old('tools_software', $schedule->tools_software ?? '') }}</textarea>
     </div>
 
-    <button type="submit" class="btn btn-primary">
-        {{ isset($schedule) ? 'Update Jadwal' : 'Daftar Praktikum' }}
-    </button>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+        {{-- Tombol Kembali --}}
+        <a href="{{ url()->previous() }}" class="btn btn-light border d-flex align-items-center shadow-sm px-3">
+            <i class="fa fa-arrow-left me-2 text-secondary"></i>
+            <span class="text-secondary fw-semibold">Batal</span>
+        </a>
+
+        {{-- Tombol Submit --}}
+        <button type="submit" class="btn btn-primary d-flex align-items-center px-4 shadow-sm">
+            <i class="fa {{ isset($schedule) ? 'fa-save' : 'fa-paper-plane' }} me-2"></i>
+            <span>{{ isset($schedule) ? 'Update' : 'Simpan' }}</span>
+        </button>
+
+    </div>
+
+    
 </form>
