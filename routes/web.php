@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SchedulingsController;
+use App\Http\Controllers\DocumentationController;
 use Illuminate\Support\Facades\Route;
 
 // Route::redirect('/', '/login');
@@ -70,12 +71,27 @@ Route::get('/role-create', [RolesController::class, 'create'])->middleware(['aut
 Route::get('/users', [UserController::class, 'index'])->middleware(['auth', 'verified'])->name('user.index');
 Route::get('/user-create', [UserController::class, 'create'])->middleware(['auth', 'verified'])->name('user.create');
 
+// scheduling Routes
+Route::prefix('scheduling')->group(function () {
+    Route::get('/', [SchedulingsController::class, 'index'])->middleware(['auth', 'verified'])->name('scheduling.index');
+    Route::get('/create', [SchedulingsController::class, 'create'])->middleware(['auth', 'verified'])->name('schedulings.create');
+    Route::post('/', [SchedulingsController::class, 'store'])->middleware(['auth', 'verified'])->name('schedulings.store');
+    Route::get('/{id}', [SchedulingsController::class, 'show'])->middleware(['auth', 'verified'])->name('schedulings.show');
+    Route::get('/{id}/edit', [SchedulingsController::class, 'edit'])->middleware(['auth', 'verified'])->name('schedulings.edit'); // untuk tampilkan form edit
+    Route::put('/{id}', [SchedulingsController::class, 'update'])->middleware(['auth', 'verified'])->name('schedulings.update');  // untuk simpan hasil edit
+    Route::delete('/{id}', [SchedulingsController::class, 'destroy'])->middleware(['auth', 'verified'])->name('schedulings.destroy');
+});
 
-Route::get('/schedules', [SchedulingsController::class, 'index'])->middleware(['auth', 'verified'])->name('schedulings.index');
-Route::get('/tambah-jadwal', [SchedulingsController::class, 'create'])->middleware(['auth', 'verified'])->name('scheduling.create');
-Route::post('/submit-praktikum', [SchedulingsController::class, 'store'])->middleware(['auth', 'verified'])->name('scheduling.store');
-Route::get('/scheduling/{id}/edit', [SchedulingsController::class, 'update'])->name('scheduling.update');
-Route::delete('/schedule/{id}', [SchedulingsController::class, 'destroy'])->name('scheduling.destroy');
+// Documentation Routes
+Route::prefix('documentation')->group(function () {
+    Route::get('/', [DocumentationController::class, 'index'])->middleware(['auth', 'verified'])->name('documentation.index');
+    Route::get('/create/{scheduling_id}', [DocumentationController::class, 'create'])->middleware(['auth', 'verified'])->name('documentations.create');
+    Route::post('/', [DocumentationController::class, 'store'])->middleware(['auth', 'verified'])->name('documentations.store');
+    Route::get('/{id}', [DocumentationController::class, 'show'])->middleware(['auth', 'verified'])->name('documentations.show');
+    Route::get('/{id}/edit', [DocumentationController::class, 'edit'])->middleware(['auth', 'verified'])->name('documentations.edit');
+    Route::put('/{id}', [DocumentationController::class, 'update'])->middleware(['auth', 'verified'])->name('documentations.update');
+    Route::delete('/{id}', [DocumentationController::class, 'destroy'])->middleware(['auth', 'verified'])->name('documentations.destroy');
+});
 
 
 Route::middleware('auth')->group(function () {

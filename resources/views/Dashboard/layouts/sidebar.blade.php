@@ -13,7 +13,7 @@
             </a>
         </li>
         <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('schedulings') || request()->is('schedulings-create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('schedulings.index')}}"><i class="bi bi-journal-bookmark-fill me-2"></i>schedulings</a>
+            <a class="nav-link d-flex align-items-center {{ request()->is('schedulings') || request()->is('create-schedulings') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('scheduling.index')}}"><i class="bi bi-journal-bookmark-fill me-2"></i>schedulings</a>
         </li>
         <li class="nav-item mb-1">
             <a class="nav-link d-flex align-items-center {{ request()->is('users') || request()->is('user-create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('user.index')}}">
@@ -24,7 +24,7 @@
             <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-door-closed-fill me-2"></i>Rooms</a>
         </li>
         <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('roles') || request()->is('role-create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('roles.index')}}">
+            <a class="nav-link d-flex align-items-center {{ request()->is('roles') || request()->is('create-role') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('roles.index')}}">
                 <i class="bi bi-people-fill me-2"></i>Roles
             </a>
         </li>
@@ -32,7 +32,9 @@
             <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-calendar3 me-2"></i>Calendar</a>
         </li>
         <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-clipboard-data-fill me-2"></i>Attendance Sheet</a>
+            <a class="nav-link d-flex align-items-center {{ request()->is('documentation') || request()->is('create-documentation') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('documentation.index')}}">
+                <i class="bi bi-clipboard-data-fill me-2"></i>Dokumentasi
+            </a>
         </li>
         <li class="nav-item mb-1">
             <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Sheet Report</a>

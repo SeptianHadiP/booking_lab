@@ -20,6 +20,13 @@
     {{-- Chart.js (optional) --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <!-- SweetAlert2 CSS (opsional, hanya jika mau custom style) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+
     <style>
         body {
             background-color: #f4f6f9;
@@ -54,6 +61,8 @@
     </div>
 </div>
 
+@include('components.alert-toast')
+
 {{-- jQuery --}}
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
@@ -64,6 +73,13 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 {{-- Script tambahan dari view --}}
 @stack('scripts')
 
@@ -72,5 +88,19 @@
         document.getElementById('layout')?.classList.toggle('collapsed');
     });
 </script>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('alert-toast');
+        if (toast) {
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+            }, 4000);
+        }
+    });
+</script>
+@endpush
+
 </body>
 </html>
