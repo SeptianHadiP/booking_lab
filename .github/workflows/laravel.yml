@@ -1,4 +1,4 @@
-name: Laravel CI/CD
+name: Laravel CI/CD to UAT
 
 on:
   push:
@@ -33,7 +33,13 @@ jobs:
 
     - name: Install Composer dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
-
+    
+    - name: Install frontend dependencies
+      run: npm install
+      
+    - name: Build frontend assets
+      run: npm run build
+    
     - name: Copy .env
       run: cp .env.example .env
 
@@ -48,7 +54,7 @@ jobs:
         DB_PORT: 3306
         DB_DATABASE: dblab_booking
         DB_USERNAME: root
-        DB_PASSWORD: root
-
+        DB_PASSWORD: root    
+    
     - name: Run tests
       run: php artisan test
