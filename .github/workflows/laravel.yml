@@ -14,7 +14,6 @@ jobs:
       mysql:
         image: mysql:8
         env:
-          MYSQL_ROOT_PASSWORD:
           MYSQL_DATABASE: dblab_booking
         ports:
           - 3306:3306
