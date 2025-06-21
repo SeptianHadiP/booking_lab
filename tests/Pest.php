@@ -45,3 +45,34 @@ function something()
 {
     // ..
 }
+
+/*
+|--------------------------------------------------------------------------
+| Test Logging Helper
+|--------------------------------------------------------------------------
+|
+| A helper function to log messages during tests with timestamps
+|
+*/
+
+function testLog($message, $level = 'info')
+{
+    $timestamp = now()->format('Y-m-d H:i:s');
+    $formattedMessage = "[{$timestamp}] [TEST] {$message}";
+    
+    switch ($level) {
+        case 'error':
+            error_log($formattedMessage);
+            break;
+        case 'warning':
+            error_log($formattedMessage);
+            break;
+        case 'debug':
+            if (config('app.debug')) {
+                echo $formattedMessage . "\n";
+            }
+            break;
+        default:
+            echo $formattedMessage . "\n";
+    }
+}
