@@ -2,9 +2,9 @@ name: Laravel CI/CD to UAT
 
 on:
   push:
-    branches: [uat] # atau 'master' tergantung nama branch
+    branches: [main] # atau 'master' tergantung nama branch
   pull_request:
-    branches: [uat]
+    branches: [main]
 
 jobs:
   laravel-tests:
@@ -36,7 +36,7 @@ jobs:
     
     - name: Install frontend dependencies
       run: npm install
-      
+
     - name: Build frontend assets
       run: npm run build
     
