@@ -9,7 +9,8 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
-
+    if: github.ref == 'refs/heads/uat'
+    
     services:
       mysql:
         image: mysql:8
@@ -62,6 +63,8 @@ jobs:
   deploy:
     needs: tests
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/uat'
+    
     services:
       mysql:
         image: mysql:8
@@ -112,7 +115,7 @@ jobs:
         run: npm install
     
       - name: Build Client
-        run: cd client && npm run build
+        run: npm run build
   
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
