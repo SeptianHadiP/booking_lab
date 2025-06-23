@@ -7,7 +7,7 @@ on:
     branches: [uat]
 
 jobs:
-  laravel-tests:
+  tests:
     runs-on: ubuntu-latest
 
   #  services:
@@ -25,8 +25,8 @@ jobs:
       uses: actions/checkout@v3
 
    
-  laravel-deploy:
-    needs: laravel-tests
+  deploy:
+    needs: tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
