@@ -64,7 +64,7 @@ jobs:
     needs: tests
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/uat'
-    
+
     services:
       mysql:
         image: mysql:8
@@ -124,8 +124,7 @@ jobs:
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
   
       - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-  
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --output public
 
       - name: Vercel Deploy
         #uses: amondnet/vercel-action@v25
