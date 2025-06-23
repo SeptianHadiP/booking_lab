@@ -1,4 +1,4 @@
-name: Laravel CI/CD to UAT
+name: Laravel CI/CD to Main
 
 on:
   push:
