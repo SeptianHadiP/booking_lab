@@ -1,72 +1,74 @@
-# Stage 1: Build assets
+# Stage 1: Build frontend assets with Node.js
 FROM node:20-alpine AS nodebuilder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+# Install frontend deps & build Vite assets
+COPY package*.json ./
 RUN npm install
 
-COPY . ./
+COPY . .
 RUN npm run build
 
 
-# Stage 2: Application with PHP
-FROM php:8.2-fpm-alpine
+# Stage 2: Laravel + PHP 8.2 with built assets
+FROM php:8.2-cli-alpine
 
 # Install system dependencies
 RUN apk add --no-cache \
     bash \
+    git \
+    curl \
     zip \
     unzip \
-    curl \
-    git \
-    libpng \
     libpng-dev \
     libjpeg-turbo-dev \
     libwebp-dev \
     freetype-dev \
-    oniguruma-dev \
-    libxml2-dev \
-    icu-dev \
     libzip-dev \
-    zlib-dev \
+    oniguruma-dev \
+    icu-dev \
     mysql-client \
-    shadow \
-    npm \
-    && docker-php-ext-install \
-        pdo \
-        pdo_mysql \
-        mbstring \
-        tokenizer \
-        xml \
-        intl \
-        zip \
-        gd
+    zlib-dev \
+    libxml2-dev
+
+# PHP Extensions
+RUN docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    mbstring \
+    tokenizer \
+    xml \
+    intl \
+    zip \
+    gd
 
 # Set working directory
-WORKDIR /var/www
+WORKDIR /app
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy app code
+# Copy project files
 COPY . .
 
-# Copy built frontend assets from node stage
+# Copy Vite build result
 COPY --from=nodebuilder /app/public/build ./public/build
 
-# Set permissions for Laravel
-RUN adduser -D appuser && \
-    chown -R appuser:appuser /var/www && \
-    chmod +x ./build.sh
+# Install PHP deps
+RUN composer install --optimize-autoloader --no-dev
 
-# Switch to non-root user
-USER appuser
+# Set permissions (optional)
+RUN chmod +x ./build.sh
 
-# Run build steps
+# Run Laravel build steps (optimize/cache)
 RUN ./build.sh
 
-# Expose port (if needed for php-fpm, nginx will use it)
-EXPOSE 9000
+# Expose port for Railway
+EXPOSE 8080
 
-CMD ["php-fpm"]
+# Use port from Railway
+ENV PORT=8080
+
+# Start Laravel dev server
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
