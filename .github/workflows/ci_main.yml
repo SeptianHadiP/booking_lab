@@ -1,14 +1,15 @@
-name: Laravel CI/CD to UAT
+name: Laravel CI/CD to Main
 
 on:
   push:
-    branches: [uat] # atau 'master' tergantung nama branch
+    branches: [main] # atau 'master' tergantung nama branch
   pull_request:
-    branches: [uat]
+    branches: [main]
 
 jobs:
-  laravel-tests:
+  tests:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
 
     services:
       mysql:
@@ -36,7 +37,7 @@ jobs:
     
     - name: Install frontend dependencies
       run: npm install
-      
+
     - name: Build frontend assets
       run: npm run build
     
