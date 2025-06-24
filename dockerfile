@@ -68,7 +68,7 @@ RUN ./build.sh
 EXPOSE 9000
 
 # Use port from Railway
-ENV PORT=9000
+#ENV PORT=9000
 
 # Start Laravel dev server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=9000"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
