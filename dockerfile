@@ -65,10 +65,10 @@ RUN chmod +x ./build.sh
 RUN ./build.sh
 
 # Expose port for Railway
-EXPOSE 8080
+EXPOSE ${PORT}
 
 # Use port from Railway
-ENV PORT=8080
+#ENV PORT=9000
 
 # Start Laravel dev server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
