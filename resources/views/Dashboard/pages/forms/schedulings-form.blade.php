@@ -6,37 +6,54 @@
 
     <div class="mb-3">
         <label for="nama" class="form-label">Nama Lengkap</label>
-        <input type="text" class="form-control" id="nama" name="nama_dosen"
-            value="{{ old('nama_dosen', $schedule->nama_dosen ?? '') }}"
-            placeholder="Masukkan nama lengkap dosen" required>
+        <input type="text" class="form-control" id="nama"
+            value="{{ Auth::user()->name }}" readonly>
+
+        {{-- Hidden field untuk mengirim user_id --}}
+        <input type="hidden" name="user_id" value="{{ Auth::id() }}">
     </div>
 
     <div class="mb-3">
-        <label for="kelas" class="form-label">Kelas</label>
-        <input type="text" class="form-control" id="kelas" name="kelas"
-            value="{{ old('kelas', $schedule->kelas ?? '') }}"
-            placeholder="Contoh: F1A1" required>
+        <label for="judul_praktikum" class="form-label">Judul Praktikum</label>
+        <input type="text" class="form-control" name="judul_praktikum" id="judul_praktikum"
+            value="{{ old('judul_praktikum', $schedule->judul_praktikum ?? '') }}"
+            placeholder="Contoh: Praktikum Analisis Numerik - Iterasi Jacobi" required>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="kelas_id">Kelas</label>
+        <select name="kelas_id" id="kelas_id" class="form-control" required>
+            <option value="" disabled selected>-- Pilih Kelas --</option>
+            @foreach ($kelasList as $kelas)
+                <option value="{{ $kelas->id }}"
+                    {{ old('kelas_id', $schedule->kelas_id ?? '') == $kelas->id ? 'selected' : '' }}>
+                    {{ $kelas->nama_kelas }}
+                </option>
+            @endforeach
+        </select>
     </div>
 
     <div class="mb-3">
-        <label for="matkul" class="form-label">Mata Kuliah</label>
-        @php
-            $matkuls = [
-                'Analisis dan Desain Berorientasi Objek',
-                'Jaringan Komputer II',
-                'Pemograman Web',
-                'Penambangan Data',
-                'Pengantar Keamanan Komputer',
-                'Sistem Basis Data',
-                'Statistika dan Probabilitas'
-            ];
-        @endphp
-        <select class="form-select" id="matkul" name="mata_kuliah" required>
+        <label for="lab_id" class="form-label">Tempat Lab</label>
+        <select class="form-select" id="lab_id" name="lab_id" required>
+            <option value="">-- Pilih Tempat Lab --</option>
+            @foreach ($labList as $lab)
+                <option value="{{ $lab->id }}"
+                    {{ old('lab_id', $schedule->lab_id ?? '') == $lab->id ? 'selected' : '' }}>
+                    {{ $lab->nama_ruangan }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="mata_kuliah_id" class="form-label">Mata Kuliah</label>
+        <select name="mata_kuliah_id" id="mata_kuliah_id" class="form-select" required>
             <option value="">-- Pilih Mata Kuliah --</option>
-            @foreach ($matkuls as $matkul)
-                <option value="{{ $matkul }}"
-                    {{ old('mata_kuliah', $schedule->mata_kuliah ?? '') == $matkul ? 'selected' : '' }}>
-                    {{ $matkul }}
+            @foreach ($mataKuliahList as $matkul)
+                <option value="{{ $matkul->id }}"
+                    {{ old('mata_kuliah_id', $schedule->mata_kuliah_id ?? '') == $matkul->id ? 'selected' : '' }}>
+                    {{ $matkul->nama_mata_kuliah }}
                 </option>
             @endforeach
         </select>
@@ -96,9 +113,9 @@
     </div>
 
     <div class="mb-3">
-        <label for="tools" class="form-label">Tools / Software yang Digunakan</label>
-        <textarea class="form-control" id="tools" name="tools_software" rows="3" required
-            placeholder="Contoh: Visual Studio Code, XAMPP, Wireshark">{{ old('tools_software', $schedule->tools_software ?? '') }}</textarea>
+        <label for="tools" class="form-label">deskripsi</label>
+        <textarea class="form-control" id="tools" name="deskripsi" rows="3" required
+            placeholder="Contoh: Visual Studio Code, XAMPP, Wireshark">{{ old('deskripsi', $schedule->deskripsi ?? '') }}</textarea>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -116,6 +133,4 @@
         </button>
 
     </div>
-
-    
 </form>

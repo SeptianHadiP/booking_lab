@@ -4,42 +4,58 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Schedulings;
+use App\Models\Kelas;
+use App\Models\Laboratorium;
+use App\Models\MataKuliahPraktikum;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class SchedulingsController extends Controller
 {
     public function index()
     {
-        $schedules = Schedulings::latest()->get();
+        $schedules = Schedulings::with(['mata_kuliah_praktikum', 'kelas', 'laboratorium', 'user'])
+            ->latest()
+            ->get();
+
         return view('dashboard.pages.schedulings.index', compact('schedules'));
     }
 
     public function show($id)
     {
-        $schedule = Schedulings::findOrFail($id);
+        // $schedule = Schedulings::with('user')->findOrFail($id);
+        $schedule = Schedulings::with(['user', 'kelas', 'mata_kuliah_praktikum', 'laboratorium', 'documentation'])
+        ->findOrFail($id);
         return view('dashboard.pages.schedulings.show-scheduling', compact('schedule'));
     }
 
     public function create()
     {
-        return view('dashboard.pages.schedulings.create-scheduling');
+        $kelasList = Kelas::all();
+        $schedule = null;
+        $mataKuliahList = MataKuliahPraktikum::all();
+        $labList = Laboratorium::all();
+
+        return view('dashboard.pages.schedulings.create-scheduling', compact('kelasList', 'mataKuliahList', 'schedule', 'labList'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama_dosen'        => 'required|string|max:255',
-            'kelas'             => 'required|string|max:20',
-            'mata_kuliah'       => 'required|string',
+            'kelas_id'          => 'required|string|max:20',
+            'mata_kuliah_id'    => 'required|string',
+            'lab_id'            => 'required|string',
             'tanggal_praktikum' => 'required|date',
             'waktu_praktikum'   => 'required|string',
             'modul_praktikum'   => 'required|mimes:pdf,doc,docx|max:2048',
-            'tools_software'    => 'required|string',
+            'judul_praktikum'   => 'required|string|max:255',
+            'deskripsi'         => 'required|string',
         ]);
 
         // Cek jadwal bentrok
         $bentrok = Schedulings::where('tanggal_praktikum', $request->tanggal_praktikum)
             ->where('waktu_praktikum', $request->waktu_praktikum)
+            ->where('lab_id', $request->lab_id)
             ->exists();
 
         if ($bentrok) {
@@ -53,39 +69,47 @@ class SchedulingsController extends Controller
 
         // Simpan ke DB
         Schedulings::create([
-            'nama_dosen'        => $request->nama_dosen,
-            'kelas'             => $request->kelas,
-            'mata_kuliah'       => $request->mata_kuliah,
+            'user_id'           => Auth::id(),
+            'kelas_id'          => $request->kelas_id,
+            'mata_kuliah_id'    => $request->mata_kuliah_id,
+            'lab_id'            => $request->lab_id,
             'tanggal_praktikum' => $request->tanggal_praktikum,
             'waktu_praktikum'   => $request->waktu_praktikum,
             'modul_praktikum'   => $modulPath,
-            'tools_software'    => $request->tools_software,
+            'judul_praktikum'   => $request->judul_praktikum,
+            'deskripsi'         => $request->deskripsi,
         ]);
 
         return redirect()->route('schedulings.create')->with('success', 'Jadwal berhasil ditambahkan!');
     }
 
-
     public function edit($id)
     {
         $schedule = Schedulings::findOrFail($id);
-        return view('dashboard.pages.schedulings.update-scheduling', compact('schedule'));
+        $kelasList = Kelas::all();
+        $mataKuliahList = MataKuliahPraktikum::all();
+        $labList = Laboratorium::all();
+
+        return view('dashboard.pages.schedulings.create-scheduling', compact('kelasList', 'mataKuliahList', 'schedule', 'labList'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nama_dosen' => 'required|string|max:255',
-            'kelas' => 'required|string|max:255',
-            'mata_kuliah' => 'required|string',
+            'kelas_id'          => 'required|string|max:255',
+            'mata_kuliah_id'    => 'required|string',
+            'lab_id'            => 'required|string',
             'tanggal_praktikum' => 'required|date',
-            'waktu_praktikum' => 'required|string',
-            'tools_software' => 'required|string',
+            'waktu_praktikum'   => 'required|string',
+            'judul_praktikum'   => 'required|string|max:255',
+            'deskripsi'         => 'required|string',
+            'modul_praktikum'   => 'nullable|mimes:pdf,doc,docx|max:2048',
         ]);
 
-        // Cek duplikasi tanggal + waktu
+        // Cek bentrok jadwal
         $conflict = Schedulings::where('tanggal_praktikum', $request->tanggal_praktikum)
             ->where('waktu_praktikum', $request->waktu_praktikum)
+            ->where('lab_id', $request->lab_id)
             ->where('id', '!=', $id)
             ->exists();
 
@@ -94,11 +118,26 @@ class SchedulingsController extends Controller
         }
 
         $schedule = Schedulings::findOrFail($id);
-        $schedule->update($request->except('modul_praktikum'));
+
+        $schedule->update([
+            'user_id'           => Auth::id(),
+            'kelas_id'          => $request->kelas_id,
+            'mata_kuliah_id'    => $request->mata_kuliah_id,
+            'lab_id'            => $request->lab_id,
+            'tanggal_praktikum' => $request->tanggal_praktikum,
+            'waktu_praktikum'   => $request->waktu_praktikum,
+            'judul_praktikum'   => $request->judul_praktikum,
+            'deskripsi'         => $request->deskripsi,
+        ]);
 
         // File handling
         if ($request->hasFile('modul_praktikum')) {
-            $file = $request->file('modul_praktikum')->store('moduls', 'public');
+            // Hapus file lama
+            if ($schedule->modul_praktikum && Storage::disk('public')->exists($schedule->modul_praktikum)) {
+                Storage::disk('public')->delete($schedule->modul_praktikum);
+            }
+
+            $file = $request->file('modul_praktikum')->store('modul_praktikum', 'public');
             $schedule->modul_praktikum = $file;
             $schedule->save();
         }

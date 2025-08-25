@@ -25,9 +25,9 @@
                 @forelse ($schedules as $schedule)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $schedule->mata_kuliah }}</td>
-                        <td>{{ $schedule->kelas }}</td>
-                        <td>{{ $schedule->nama_dosen }}</td>
+                        <td>{{ $schedule->mata_kuliah_praktikum->nama_mata_kuliah ?? 'Mata kuliah tidak ditemukan' }}</td>
+                        <td>{{ $schedule->kelas->nama_kelas }}</td>
+                        <td>{{ $schedule->user->name }}</td>
                         <td>{{ \Carbon\Carbon::parse($schedule->tanggal_praktikum)->format('d M Y') }}</td>
                         <td>{{ $schedule->waktu_praktikum }}</td>
                         <td>

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Documentation;
 use App\Models\Schedulings;
+use App\Models\Kelas;
+use App\Models\Laboratorium;
+use App\Models\MataKuliahPraktikum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,12 +14,15 @@ class DocumentationController extends Controller
 {
     public function index()
     {
-        $schedules = Schedulings::with('documentation')->latest()->get();
+        $schedules = Schedulings::with(['mata_kuliah_praktikum', 'kelas', 'laboratorium'])->latest()->get();
         return view('dashboard.pages.documentations.index', compact('schedules'));
     }
 
     public function create($scheduling_id)
     {
+        $kelasList = Kelas::all();
+        $mataKuliahList = MataKuliahPraktikum::all();
+        $labList = Laboratorium::all();
         $scheduling = Schedulings::findOrFail($scheduling_id);
         return view('dashboard.pages.documentations.create-documentation', compact('scheduling'));
     }
@@ -49,8 +55,8 @@ class DocumentationController extends Controller
 
     public function show($id)
     {
-        $scheduling = Schedulings::findOrFail($id);
-        $documentation = $scheduling->documentation()->first(); // satu-satu relasi
+        $documentation = Documentation::with('schedule')->findOrFail($id);
+        $scheduling = $documentation->schedule;
 
         return view('dashboard.pages.documentations.show-documentation', compact('scheduling', 'documentation'));
     }
@@ -112,6 +118,6 @@ class DocumentationController extends Controller
         }
 
         $documentation->delete();
-        return redirect()->route('documentations.index')->with('success', 'Dokumentasi berhasil dihapus.');
+        return redirect()->route('documentation.index')->with('success', 'Dokumentasi berhasil dihapus.');
     }
 }

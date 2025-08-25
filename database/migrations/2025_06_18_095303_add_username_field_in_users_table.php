@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('username')->unique()->after('name'); //->nullable();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      */

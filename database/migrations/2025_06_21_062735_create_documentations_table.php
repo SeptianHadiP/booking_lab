@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('nama');
             $table->string('foto_1');
             $table->string('foto_2');
-            $table->string('absen_1')->nullable();
+            $table->string('absen_1');
             $table->string('absen_2')->nullable();
             $table->timestamp('tanggal_upload')->nullable(); // Tambahan opsional
             $table->timestamps(); // created_at & updated_at

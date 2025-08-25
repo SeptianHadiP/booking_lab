@@ -2,7 +2,25 @@
 
 @section('content')
 <div class="container mt-3">
-    <h4>Edit Dokumentasi Praktikum</h4>
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="h4 fw-semibold text-dark mb-1">Edit Dokumentasi Praktikum</h2>
+            <p class="text-muted small mb-0">Perbarui dokumentasi praktikum yang telah dibuat</p>
+        </div>
+    </div>
+
+    @if (session('success') && session('alert_type') == 'auto')
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session("success") }}',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        </script>
+    @endif
     <form action="{{ route('documentations.update', $documentation->id) }}" method="POST" enctype="multipart/form-data">
         @include('dashboard.pages.forms.documentation-form')
     </form>
@@ -19,22 +37,29 @@
             title: 'Berhasil!',
             text: '{{ session("success") }}',
             showCancelButton: true,
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Tetap di Halaman Ini',
+            confirmButtonText: 'Kembali ke Daftar',
+            cancelButtonText: 'Tetap di Form',
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "{{ route('documentations.index') }}";
+                window.location.href = "{{ route('documentation.index') }}";
             }
         });
     </script>
-@endif
-
-@if ($errors->any())
+@elseif ($errors->has('tanggal_praktikum'))
+    <script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan',
+            text: '{{ session("warning") }}',
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (session('error'))
     <script>
         Swal.fire({
             icon: 'error',
-            title: 'Gagal Menyimpan',
-            text: 'Pastikan semua input valid dan file tidak melebihi batas ukuran.',
+            title: 'Validasi Gagal',
+            html: `{!! implode('<br>', $errors->all()) !!}`,
             confirmButtonText: 'OK'
         });
     </script>

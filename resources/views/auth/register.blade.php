@@ -23,6 +23,19 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <div class="mt-4">
+            <x-input-label for="roles" :value="__('Pilih Role(s)')" />
+            <div class="grid grid-cols-2 gap-2 mt-2">
+                @foreach ($roles as $role)
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="roles[]" value="{{ $role->name }}" class="form-checkbox text-indigo-600">
+                        <span class="ml-2 text-sm text-gray-700">{{ ucfirst($role->name) }}</span>
+                    </label>
+                @endforeach
+            </div>
+            <x-input-error :messages="$errors->get('roles')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />

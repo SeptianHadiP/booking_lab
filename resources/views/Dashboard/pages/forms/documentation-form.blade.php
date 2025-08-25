@@ -10,15 +10,19 @@
 <div class="row">
     <div class="col-md-6 mb-3">
         <strong>👨‍🏫 Nama Dosen:</strong><br>
-        <span class="text-dark">{{ $scheduling->nama_dosen ?? $documentation->scheduling->nama_dosen ?? '-' }}</span>
+        <span class="text-dark">{{ $scheduling->user->name ?? $documentation->scheduling->user->name ?? '-' }}</span>
     </div>
     <div class="col-md-6 mb-3">
         <strong>📚 Mata Kuliah:</strong><br>
-        <span class="text-dark">{{ $scheduling->mata_kuliah ?? $documentation->scheduling->mata_kuliah ?? '-' }}</span>
+        <span class="text-dark">{{ $scheduling->mata_kuliah_praktikum->nama_mata_kuliah ?? $documentation->$scheduling->mata_kuliah_praktikum->nama_mata_kuliah ?? '-' }}</span>
     </div>
     <div class="col-md-6 mb-3">
         <strong>🏫 Kelas:</strong><br>
-        <span class="text-dark">{{ $scheduling->kelas ?? $documentation->scheduling->kelas ?? '-' }}</span>
+        <span class="text-dark">{{ $scheduling->kelas->nama_kelas ?? $documentation->scheduling->kelas->nama_kelas ?? '-' }}</span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <strong>🏢 Tempat / Lab Praktikum:</strong><br>
+        <span class="text-dark">{{ $scheduling->laboratorium->nama_ruangan ?? $documentation->scheduling->laboratorium->nama_ruangan ?? '-' }}</span>
     </div>
     <div class="col-md-6 mb-3">
         <strong>📅 Tanggal Praktikum:</strong><br>
@@ -32,7 +36,7 @@
     </div>
     <div class="col-md-12 mb-3">
         <strong>🛠️ Tools / Software yang Digunakan:</strong><br>
-        <span class="text-dark">{{ $scheduling->tools_software ?? $documentation->scheduling->tools_software ?? '-' }}</span>
+        <span class="text-dark">{{ $scheduling->deskripsi ?? $documentation->scheduling->deskripsi ?? '-' }}</span>
     </div>
 </div>
 
@@ -79,7 +83,7 @@
             <i class="fa fa-arrow-left me-2 text-secondary"></i>
             <span class="text-secondary fw-semibold">Batal</span>
         </a>
-        
+
         {{-- Tombol Submit --}}
         <button type="submit" class="btn btn-primary">
             {{ isset($documentation) ? 'Update Dokumentasi' : 'Simpan Dokumentasi' }}

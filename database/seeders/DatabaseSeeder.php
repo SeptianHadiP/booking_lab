@@ -14,11 +14,25 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RolePermissionSeeder::class);
+        $this->call([
+            PermissionSeeder::class,
+            // RoleSeeder::class,
+            // UsersWithRolesAndPermissionsSeeder::class,
+            LaboratoriumSeeder::class,
+            MataKuliahPraktikumSeeder::class,
+            PertemuanPraktikumSeeder::class,
+            KelasSeeder::class,
+        ]);
+
+        User::create([
+            'name' => 'ryan',
+            'username' => 'ryan',
+            'email' => 'septianhadip2002@gmail.com',
+            'password' => bcrypt('password'),
+        ])->assignRole('kalab');
+        
         // User::factory(10)->create();
 
-        // ...existing code...
-        $this->call(UsersWithRolesAndPermissionsSeeder::class);
         // ...existing code...
         // User::factory()->create([
         //     'username' => 'testuser',

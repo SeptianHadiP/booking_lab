@@ -128,7 +128,7 @@
     <p>
       Streamline your laboratory reservations at Bhayangkara University. Book labs, manage schedules, and optimize resource allocation with ease.
     </p>
-    <a href="#" class="btn"><i class="fas fa-sign-in-alt"></i> Login to Get Started</a>
+    <a href="{{ route('login') }}" class="btn"><i class="fas fa-sign-in-alt"></i> Login to Get Started</a>
   </div>
 
   <div class="features">

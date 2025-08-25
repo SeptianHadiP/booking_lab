@@ -12,38 +12,61 @@
                 <i class="bi bi-speedometer2 me-2"></i>Dashboard
             </a>
         </li>
+        <!-- <x-button.can permission="read scheduling"> -->
+            <!-- </x-button.can> -->
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center {{ request()->is('schedulings')  || request()->is('create-schedulings') || request()->is('create-documentation') ? 'active bg-primary text-white rounded' : 'text-dark' }} " href="{{route('scheduling.index')}}">
+                    <i class="bi bi-journal-bookmark-fill me-2"></i>schedulings
+                </a>
+            </li>
+        <x-button.can permission="read documentation">
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center {{ request()->is('documentation') || request()->is('create-documentation') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('documentation.index')}}">
+                    <i class="bi bi-clipboard-data-fill me-2"></i>Document
+                </a>
+            </li>
+        </x-button.can>
+        <x-button.can permission="read user">
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center {{ request()->is('users') || request()->is('users-create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('users.index')}}">
+                    <i class="bi bi-person-fill me-2"></i>Users
+                </a>
+            </li>
+        </x-button.can>
+        <x-button.can permission="read role">
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center {{ request()->is('roles') || request()->is('create-role') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('roles.index')}}">
+                    <i class="bi bi-people-fill me-2"></i>Roles
+                </a>
+            </li>
+        </x-button.can>
         <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('schedulings') || request()->is('create-schedulings') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('scheduling.index')}}"><i class="bi bi-journal-bookmark-fill me-2"></i>schedulings</a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('users') || request()->is('user-create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('user.index')}}">
-                <i class="bi bi-person-fill me-2"></i>Users
+            <a class="nav-link d-flex align-items-center {{ request()->is('laporan-praktikum') || request()->is('laprak.create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('laprak.create')}}">
+                <i class="bi bi-file-earmark-bar-graph-fill me-2"></i>laporan pratikum
             </a>
         </li>
+        <li class="nav-item mb-1">
+            <a class="nav-link d-flex align-items-center {{ request()->is('certificate') || request()->is('certificate.create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('certificate.create')}}">
+                <i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Certificate
+            </a>
+        </li>
+        <li class="nav-item mb-1">
+            <a class="nav-link d-flex align-items-center {{ request()->is('template') || request()->is('template.create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('template.index')}}">
+                <i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Template
+            </a>
+        </li>
+        <!--
         <li class="nav-item mb-1">
             <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-door-closed-fill me-2"></i>Rooms</a>
         </li>
         <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('roles') || request()->is('create-role') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('roles.index')}}">
-                <i class="bi bi-people-fill me-2"></i>Roles
-            </a>
-        </li>
-        <li class="nav-item mb-1">
             <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-calendar3 me-2"></i>Calendar</a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('documentation') || request()->is('create-documentation') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('documentation.index')}}">
-                <i class="bi bi-clipboard-data-fill me-2"></i>Dokumentasi
-            </a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Sheet Report</a>
         </li>
         <li class="nav-item mb-1">
             <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-cash-stack me-2"></i>Billing</a>
         </li>
         <li class="nav-item mb-1">
             <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-receipt-cutoff me-2"></i>Bill Info</a>
-        </li>
+        </li> -->
     </ul>
 </div>

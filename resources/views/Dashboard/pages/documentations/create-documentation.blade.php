@@ -9,8 +9,17 @@
         </div>
     </div>
 
-    @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+    @if (session('success') && session('alert_type') == 'auto')
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session("success") }}',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        </script>
     @endif
 
     <form action="{{ route('documentations.store') }}" method="POST" enctype="multipart/form-data">
@@ -30,7 +39,7 @@
             title: 'Berhasil!',
             text: '{{ session("success") }}',
             showCancelButton: true,
-            confirmButtonText: 'OK',
+            confirmButtonText: 'Kembali ke Daftar',
             cancelButtonText: 'Tetap di Form',
         }).then((result) => {
             if (result.isConfirmed) {
@@ -38,25 +47,21 @@
             }
         });
     </script>
-@endif
-
-@if ($errors->any())
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Validasi Gagal',
-            html: `{!! implode('<br>', $errors->all()) !!}`,
-            confirmButtonText: 'OK'
-        });
-    </script>
-@endif
-
-@if (session('warning'))
+@elseif ($errors->has('tanggal_praktikum'))
     <script>
         Swal.fire({
             icon: 'warning',
             title: 'Peringatan',
             text: '{{ session("warning") }}',
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Validasi Gagal',
+            html: `{!! implode('<br>', $errors->all()) !!}`,
             confirmButtonText: 'OK'
         });
     </script>
