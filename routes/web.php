@@ -13,6 +13,7 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\LaporanPraktikumController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SemesterController;
 
 // Route::redirect('/', '/login');
 // Route::get('/home', function () {
@@ -184,6 +185,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [TemplateController::class, 'update'])->name('template.update');
         Route::delete('/{id}', [TemplateController::class, 'destroy'])->middleware(['auth', 'verified'])->name('template.destroy');
     });
+
+    Route::get('/semester/active', [SemesterController::class, 'active']);
+    Route::get('/semester/{year}', [SemesterController::class, 'byYear']);
 
 });
 

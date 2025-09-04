@@ -60,6 +60,20 @@
     </div>
 
     <div class="mb-3">
+        <label for="semester_id" class="form-label">Semester / Tahun Ajar</label>
+        <select name="semester_id" id="semester_id" class="form-select" required>
+            <option value="">-- Pilih Semester --</option>
+            @foreach ($semesters as $semester)
+                <option value="{{ $semester->id }}"
+                    {{ old('semester_id', $schedule->semester_id ?? '') == $semester->id ? 'selected' : '' }}>
+                    {{ $semester->nama_semester }} ({{ $semester->tahun_ajar }})
+                    @if($semester->is_active) - [Aktif] @endif
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="mb-3">
         <label for="tanggal" class="form-label">Tanggal Praktikum</label>
         <input type="date"
             class="form-control @error('tanggal_praktikum') is-invalid @enderror"

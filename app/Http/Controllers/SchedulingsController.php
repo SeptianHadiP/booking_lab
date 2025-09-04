@@ -7,6 +7,7 @@ use App\Models\Schedulings;
 use App\Models\Kelas;
 use App\Models\Laboratorium;
 use App\Models\MataKuliahPraktikum;
+use App\Models\Semester;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,7 +53,18 @@ class SchedulingsController extends Controller
             'deskripsi'         => 'required|string',
         ]);
 
-        // Cek jadwal bentrok
+        // Ambil semester aktif berdasarkan tanggal booking
+        // $semester = Semester::where('start_date', '<=', $request->tanggal_praktikum)
+        //                     ->where('end_date', '>=', $request->tanggal_praktikum)
+        //                     ->first();
+
+        // if (!$semester) {
+        //     return back()->withErrors([
+        //         'tanggal_praktikum' => 'Tanggal yang dipilih tidak termasuk dalam semester aktif.'
+        //     ])->withInput();
+        // }
+
+        // Cek bentrok jadwal
         $bentrok = Schedulings::where('tanggal_praktikum', $request->tanggal_praktikum)
             ->where('waktu_praktikum', $request->waktu_praktikum)
             ->where('lab_id', $request->lab_id)
@@ -64,15 +76,15 @@ class SchedulingsController extends Controller
             ])->withInput();
         }
 
-        // Simpan file modul
+        // Upload modul
         $modulPath = $request->file('modul_praktikum')->store('modul_praktikum', 'public');
 
-        // Simpan ke DB
         Schedulings::create([
             'user_id'           => Auth::id(),
             'kelas_id'          => $request->kelas_id,
             'mata_kuliah_id'    => $request->mata_kuliah_id,
             'lab_id'            => $request->lab_id,
+            // 'semester_id'       => $semester->code, // simpan semester aktif
             'tanggal_praktikum' => $request->tanggal_praktikum,
             'waktu_praktikum'   => $request->waktu_praktikum,
             'modul_praktikum'   => $modulPath,

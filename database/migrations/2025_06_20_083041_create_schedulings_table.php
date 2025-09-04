@@ -18,6 +18,10 @@ return new class extends Migration
             $table->unsignedBigInteger('mata_kuliah_id')->nullable();
             $table->unsignedBigInteger('lab_id')->nullable();
 
+            // Relasi ke semester
+            // $table->string('nama');
+            // $table->foreign('semester_id')->references('code')->on('semesters')->onDelete('cascade');
+
             // Hapus kolom nama_dosen
             $table->date('tanggal_praktikum');
             $table->string('waktu_praktikum');

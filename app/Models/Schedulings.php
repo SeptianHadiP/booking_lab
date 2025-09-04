@@ -13,6 +13,8 @@ class Schedulings extends Model
         'user_id', // ganti dari nama_dosen → user_id
         'kelas_id',
         'mata_kuliah_id',
+        'lab_id',
+        // 'semester_id',
         'tanggal_praktikum',
         'waktu_praktikum',
         'modul_praktikum',
@@ -50,4 +52,10 @@ class Schedulings extends Model
     {
         return $this->belongsTo(Laboratorium::class, 'lab_id');
     }
+
+    // Relasi ke Semester
+    // public function semester()
+    // {
+    //     return $this->belongsTo(Semester::class, 'semester_id', 'id');
+    // }
 }
