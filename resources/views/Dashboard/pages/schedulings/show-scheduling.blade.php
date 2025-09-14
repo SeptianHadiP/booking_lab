@@ -1,183 +1,199 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
-<div class="container mt-4">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header bg-primary text-white rounded-top-4">
-            <h5 class="mb-0">
+<div class="container mx-auto px-4">
+    <div class="bg-white shadow rounded-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-600 text-white px-6 py-4">
+            <h5 class="text-lg font-semibold flex items-center gap-2">
                 <i class="fa fa-info-circle"></i> Informasi Jadwal Praktikum
             </h5>
         </div>
 
-        <div class="card-body p-4" style="font-size: 16px;">
-            <div class="row">
-                <div class="col-md-6 mb-3">
+        <!-- Body -->
+        <div class="p-6 text-gray-800 text-base">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <div>
                     <strong>👨‍🏫 Nama Dosen:</strong><br>
-                    <span class="text-dark">{{ $schedule->user->name ?? 'Dosen tidak ditemukan' }}</span>
+                    <span>{{ $schedule->user->name ?? 'Dosen tidak ditemukan' }}</span>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div>
                     <strong>📚 Mata Kuliah:</strong><br>
-                    <span class="text-dark">{{ $schedule->mata_kuliah_praktikum->nama_mata_kuliah ?? 'Mata kuliah tidak ditemukan' }}</span>
+                    <span>{{ $schedule->mata_kuliah_praktikum->nama_mata_kuliah ?? 'Mata kuliah tidak ditemukan' }}</span>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div>
                     <strong>🏫 Kelas:</strong><br>
-                    <span class="text-dark">{{ $schedule->kelas->nama_kelas ?? 'Kelas tidak ditemukan' }}</span>
+                    <span>{{ $schedule->kelas->nama_kelas ?? 'Kelas tidak ditemukan' }}</span>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div>
+                    <strong>🎓 Tahun Ajaran:</strong><br>
+                    <span>{{ $schedule->semester->tahun_ajar ?? '-' }}</span>
+                </div>
+                <div>
                     <strong>🏢 Tempat / Lab Praktikum:</strong><br>
-                    <span class="text-dark">{{ $schedule->laboratorium->nama_ruangan ?? 'Laboratorium tidak ditemukan' }}</span>
+                    <span>{{ $schedule->laboratorium->nama_ruangan ?? 'Laboratorium tidak ditemukan' }}</span>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div>
                     <strong>📅 Tanggal Praktikum:</strong><br>
-                    <span class="text-dark">{{ \Carbon\Carbon::parse($schedule->tanggal_praktikum)->translatedFormat('l, d F Y') }}</span>
+                    <span>{{ \Carbon\Carbon::parse($schedule->tanggal_praktikum)->translatedFormat('l, d F Y') }}</span>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div>
                     <strong>⏰ Waktu Praktikum:</strong><br>
-                    <span class="text-dark">{{ $schedule->waktu_praktikum }}</span>
+                    <span>{{ $schedule->waktu_praktikum }}</span>
                 </div>
-
                 <x-button.can permission="distroy role">
-                    <div class="col-md-12 mb-3">
+                    <div class="col-span-1 md:col-span-2">
                         <strong>🛠️ Tools / Software yang Digunakan:</strong><br>
-                        <span class="text-dark">{{ $schedule->deskripsi }}</span>
+                        <span>{{ $schedule->deskripsi }}</span>
                     </div>
                 </x-button.can>
 
-                <div class="col-md-12 mb-3">
+                <div class="col-span-1 md:col-span-2">
                     <strong>📄 Modul Praktikum:</strong><br>
                     @if ($schedule->modul_praktikum)
-                        <a href="{{ asset('storage/' . $schedule->modul_praktikum) }}" target="_blank" class="btn btn-outline-primary btn-sm mt-1">
+                        <a href="{{ asset('storage/' . $schedule->modul_praktikum) }}" target="_blank"
+                            class="mt-2 inline-flex items-center gap-2 px-3 py-1.5 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 transition">
                             <i class="fa fa-file-pdf-o"></i> Lihat Modul
                         </a>
                     @else
-                        <span class="text-muted">Belum ada modul yang diunggah</span>
+                        <span class="text-gray-400">Belum ada modul yang diunggah</span>
                     @endif
                 </div>
+            </div>
 
-                <hr>
+            <hr class="my-6">
 
-                {{-- Dokumentasi Praktikum --}}
-                <div class="col-md-12 mb-4">
-                    <strong>📸 Dokumentasi Praktikum:</strong>
-                    <div class="mt-2 p-3 border rounded-3 bg-light">
-                        @if ($schedule->documentation)
-                            <div class="mb-2 d-flex justify-content-between">
-                                <div>
-                                    <span class="fw-bold">Buat oleh:</span>
-                                    <span class="text-dark">{{ $schedule->documentation->nama ?? '-' }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-dark">
-                                        {{ $schedule->documentation->created_at->format('d M Y (H:i)') }}
-                                    </span>
-                                </div>
+            {{-- Dokumentasi Praktikum --}}
+            <div>
+                <strong>📸 Dokumentasi Praktikum:</strong>
+                <div class="mt-3 p-4 border rounded-lg bg-gray-50">
+                    @if ($schedule->documentation)
+                        <div class="flex justify-between mb-4 text-gray-700">
+                            <div>
+                                <span class="font-semibold">Buat oleh:</span>
+                                <span>{{ $schedule->documentation->nama ?? '-' }}</span>
+                            </div>
+                            <div>
+                                {{ $schedule->documentation->created_at->format('d M Y (H:i)') }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {{-- Foto 1 --}}
+                            <div class="text-center p-4 bg-white border rounded-lg shadow">
+                                <strong>Foto 1</strong>
+                                @if ($schedule->documentation->foto_1)
+                                    <img src="{{ asset('storage/' . $schedule->documentation->foto_1) }}"
+                                        alt="Foto 1"
+                                        class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
+                                        data-img="{{ asset('storage/' . $schedule->documentation->foto_1) }}">
+                                @else
+                                    <p class="text-gray-400 mt-2">Tidak ada foto</p>
+                                @endif
                             </div>
 
-                            <div class="row g-3">
-                                {{-- Foto 1 --}}
-                                <div class="col-md-6 text-center">
-                                    <div class="border rounded p-2 bg-white shadow-sm h-100">
-                                        <strong>Foto 1</strong>
-                                        @if ($schedule->documentation->foto_1)<br>
-                                            <img src="{{ asset('storage/' . $schedule->documentation->foto_1) }}"
-                                                alt="Foto 1"
-                                                class="img-fluid rounded mt-2 popup-img"
-                                                data-img="{{ asset('storage/' . $schedule->documentation->foto_1) }}"
-                                                style="max-height: 250px; object-fit: cover; cursor:pointer;">
-                                        @else
-                                            <p class="text-muted mt-2">Tidak ada foto</p>
-                                        @endif
-                                    </div>
-                                </div>
+                            {{-- Absen 1 --}}
+                            <div class="text-center p-4 bg-white border rounded-lg shadow">
+                                <strong>Foto Absen 1</strong>
+                                @if ($schedule->documentation->absen_1)
+                                    <img src="{{ Storage::url($schedule->documentation->absen_1) }}"
+                                        alt="Absen 1"
+                                        class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
+                                        data-img="{{ Storage::url($schedule->documentation->absen_1) }}">
+                                @else
+                                    <p class="text-gray-400 mt-2">Tidak ada foto absen</p>
+                                @endif
+                            </div>
+                        </div>
 
-                                {{-- Foto 2 --}}
-                                <div class="col-md-6 text-center">
-                                    <div class="border rounded p-2 bg-white shadow-sm h-100">
-                                        <strong>Foto 2</strong>
-                                        @if ($schedule->documentation->foto_2)<br>
-                                            <img src="{{ asset('storage/' . $schedule->documentation->foto_2) }}"
-                                                alt="Foto 2"
-                                                class="img-fluid rounded mt-2 popup-img"
-                                                data-img="{{ asset('storage/' . $schedule->documentation->foto_2) }}"
-                                                style="max-height: 250px; object-fit: cover; cursor:pointer;">
-                                        @else
-                                            <p class="text-muted mt-2">Tidak ada foto</p>
-                                        @endif
-                                    </div>
-                                </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            {{-- Foto 2 --}}
+                            <div class="text-center p-4 bg-white border rounded-lg shadow">
+                                <strong>Foto 2</strong>
+                                @if ($schedule->documentation->foto_2)
+                                    <img src="{{ asset('storage/' . $schedule->documentation->foto_2) }}"
+                                        alt="Foto 2"
+                                        class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
+                                        data-img="{{ asset('storage/' . $schedule->documentation->foto_2) }}">
+                                @else
+                                    <p class="text-gray-400 mt-2">Tidak ada foto</p>
+                                @endif
                             </div>
 
-                            <div class="mt-3">
-                                <div class="row g-3">
-                                    {{-- Absen 1 --}}
-                                    <div class="col-md-6 text-center">
-                                        <div class="border rounded p-2 bg-white shadow-sm h-100">
-                                            <strong>Foto Absen 1</strong><br>
-                                            @if ($schedule->documentation->absen_1)
-                                                <img src="{{ Storage::url($schedule->documentation->absen_1) }}"
-                                                    alt="Absen 1"
-                                                    class="img-fluid rounded mt-2 popup-img"
-                                                    data-img="{{ Storage::url($schedule->documentation->absen_1) }}"
-                                                    style="max-height: 250px; object-fit: cover; cursor:pointer;">
-                                            @else
-                                                <p class="text-muted mt-2">Tidak ada foto absen</p>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    {{-- Absen 2 --}}
-                                    <div class="col-md-6 text-center">
-                                        <div class="border rounded p-2 bg-white shadow-sm h-100">
-                                            <strong>Foto Absen 2</strong><br>
-                                            @if ($schedule->documentation->absen_2)
-                                                <img src="{{ Storage::url($schedule->documentation->absen_2) }}"
-                                                    alt="Absen 2"
-                                                    class="img-fluid rounded mt-2 popup-img"
-                                                    data-img="{{ Storage::url($schedule->documentation->absen_2) }}"
-                                                    style="max-height: 250px; object-fit: cover; cursor:pointer;">
-                                            @else
-                                                <p class="text-muted mt-2">Tidak ada foto absen</p>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
+                            {{-- Absen 2 --}}
+                            <div class="text-center p-4 bg-white border rounded-lg shadow">
+                                <strong>Foto Absen 2</strong>
+                                @if ($schedule->documentation->absen_2)
+                                    <img src="{{ Storage::url($schedule->documentation->absen_2) }}"
+                                        alt="Absen 2"
+                                        class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
+                                        data-img="{{ Storage::url($schedule->documentation->absen_2) }}">
+                                @else
+                                    <p class="text-gray-400 mt-2">Tidak ada foto absen</p>
+                                @endif
                             </div>
+                        </div>
 
-                        @else
-                            <p class="text-muted">Belum ada dokumentasi untuk jadwal ini.</p>
-                        @endif
-                    </div>
+                    @else
+                        <p class="text-gray-400">Belum ada dokumentasi untuk jadwal ini.</p>
+                    @endif
                 </div>
             </div>
 
-            <hr>
-
-            <div class="d-flex justify-content-end gap-2">
-                <a href="{{ route('scheduling.index') }}" class="btn btn-light border rounded-pill">
+            <hr class="my-6">
+            <div class="flex flex-wrap justify-between gap-3">
+                {{-- Tombol Kembali --}}
+                <a href="{{ route('scheduling.index') }}"
+                class="inline-flex items-center gap-2 px-4 py-2 border rounded-full bg-white hover:bg-gray-50 transition text-gray-700">
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
-                <a href="{{ route('schedulings.edit', $schedule->id) }}" class="btn btn-warning text-white rounded-pill">
-                    <i class="fa fa-pencil"></i> Edit
-                </a>
-                <form action="{{ route('schedulings.destroy', $schedule->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus jadwal ini?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger rounded-pill">
-                        <i class="fa fa-trash"></i> Hapus
-                    </button>
-                </form>
+
+                <div class="flex flex-wrap gap-3">
+                    {{-- Edit Jadwal --}}
+                    @can('edit scheduling', $schedule)
+                        <a href="{{ route('schedulings.edit', $schedule->id) }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 transition">
+                            <i class="fa fa-pencil"></i> Ubah Jadwal
+                        </a>
+                    @endcan
+
+                    {{-- Edit Dokumentasi --}}
+                    @can('edit documentation', App\Models\Documentation::class)
+                        @if($schedule->documentation)
+                            <a href="{{ route('documentations.edit', $schedule->documentation->id) }}"
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 transition">
+                                <i class="bi bi-pencil-square"></i> Ubah Dokumentasi
+                            </a>
+                        @endif
+                    @endcan
+
+                    {{-- Hapus Jadwal --}}
+                    <form action="{{ route('schedulings.destroy', $schedule->id) }}" method="POST"
+                        onsubmit="return confirm('Yakin ingin menghapus jadwal ini?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition">
+                            <i class="fa fa-trash"></i> Hapus
+                        </button>
+                    </form>
+                </div>
             </div>
+
         </div>
     </div>
 </div>
 
 {{-- Modal Popup Gambar --}}
-<div id="imgModal" class="modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.8);">
-    <span id="closeModal" style="position:absolute; top:20px; right:35px; color:white; font-size:40px; font-weight:bold; cursor:pointer;">&times;</span>
-    <div style="text-align:center; margin-top:50px;">
-        <img id="modalImg" style="max-width:90%; max-height:80vh; border-radius:10px;">
+<div id="imgModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-80 flex items-start justify-center overflow-auto p-6">
+    <span id="closeModal" class="absolute top-5 right-5 text-white text-4xl font-bold cursor-pointer">&times;</span>
+    <div class="text-center mt-12">
+        <img id="modalImg" class="max-w-[90%] max-h-[80vh] rounded-lg">
         <br>
-        <a id="downloadBtn" href="#" download class="btn btn-success mt-3"><i class="fa fa-download"></i> Download</a>
+        <a id="downloadBtn" href="#" download
+            class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+            <i class="fa fa-download"></i> Download
+        </a>
     </div>
 </div>
 
@@ -191,19 +207,19 @@ document.addEventListener("DOMContentLoaded", function(){
 
     document.querySelectorAll(".popup-img").forEach(img => {
         img.addEventListener("click", function(){
-            modal.style.display = "block";
+            modal.classList.remove("hidden");
             modalImg.src = this.dataset.img;
             downloadBtn.href = this.dataset.img;
         });
     });
 
     closeModal.addEventListener("click", function(){
-        modal.style.display = "none";
+        modal.classList.add("hidden");
     });
 
     window.addEventListener("click", function(e){
         if(e.target === modal){
-            modal.style.display = "none";
+            modal.classList.add("hidden");
         }
     });
 });

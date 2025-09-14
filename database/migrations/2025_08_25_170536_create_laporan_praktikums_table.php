@@ -13,11 +13,19 @@ return new class extends Migration
     {
         Schema::create('laporan_praktikum', function (Blueprint $table) {
             $table->id();
-            $table->string('laporan_file'); // file laporan PDF/DOCX
-            $table->string('kelas');        // nama kelas
-            $table->enum('semester', ['Ganjil', 'Genap']);
-            $table->string('nilai_file');   // file excel nilai
+            $table->string('laporan_file');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('kelas_id');
+            $table->unsignedBigInteger('mata_kuliah_id');
+            $table->string('semester_id');
+            $table->string('nilai_file');
+            $table->string('deskripsi');
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('kelas_id')->references('id')->on('kelas')->onDelete('cascade');
+            $table->foreign('mata_kuliah_id')->references('id')->on('mata_kuliah_praktikum')->onDelete('cascade');
+            $table->foreign('semester_id')->references('id')->on('semesters')->onDelete('cascade');
         });
     }
 

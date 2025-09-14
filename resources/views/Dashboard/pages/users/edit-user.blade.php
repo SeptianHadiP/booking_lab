@@ -1,76 +1,79 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
-<div class="bg-white shadow rounded p-4">
+<div class="bg-white shadow rounded-lg p-6">
+
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <div>
-            <h2 class="h4 fw-semibold text-dark mb-1">Edit User</h2>
-            <p class="text-muted small mb-0">Perbarui data dan hak akses pengguna</p>
+            <h2 class="text-xl font-semibold text-gray-900 mb-1">Edit User</h2>
+            <p class="text-sm text-gray-500">Perbarui data dan hak akses pengguna</p>
         </div>
-        <a href="{{ route('users.index') }}" class="btn btn-success">← Kembali</a>
+        <a href="{{ route('users.index') }}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition">
+            ← Kembali
+        </a>
     </div>
 
     <!-- Error Alert -->
     @if ($errors->any())
-        <div class="alert alert-danger small">
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
             <strong>Oops! Ada kesalahan:</strong>
-            <ul class="mb-0 mt-1">
+            <ul class="mt-1 list-disc list-inside">
                 @foreach ($errors->all() as $error)
-                    <li class="small">{{ $error }}</li>
+                    <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
     @endif
 
     <!-- Form -->
-    <form action="{{ route('users.update', $user->id) }}" method="POST">
+    <form action="{{ route('users.update', $user->id) }}" method="POST" class="space-y-5">
         @csrf
         @method('PUT')
 
         <!-- Nama -->
-        <div class="mb-3">
-            <label for="name" class="form-label">Nama</label>
-            <input type="text" value="{{ old('name', $user->name) }}" class="form-control" id="name" name="name" required>
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+            <input type="text" name="name" id="name" required
+                value="{{ old('name', $user->name) }}"
+                class="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-blue-200 focus:border-blue-500">
         </div>
 
         <!-- Email -->
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" value="{{ old('email', $user->email) }}" class="form-control" id="email" name="email" required>
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" name="email" id="email" required
+                value="{{ old('email', $user->email) }}"
+                class="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-blue-200 focus:border-blue-500">
         </div>
 
         <!-- Roles -->
-        <div class="mb-4">
-            <label class="form-label d-block">Roles</label>
-            <div class="row">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Roles</label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 @forelse ($roles as $role)
-                    <div class="col-md-4 mb-2">
-                        <div class="form-check">
-                            <input type="checkbox"
-                                class="form-check-input"
-                                id="role-{{ $role->id }}"
-                                name="roles[]"
-                                value="{{ $role->name }}"
-                                {{ $hasRoles->contains($role->name) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="role-{{ $role->id }}">{{ $role->name }}</label>
-                        </div>
-                    </div>
+                    <label class="inline-flex items-center gap-2">
+                        <input type="checkbox"
+                            name="roles[]"
+                            value="{{ $role->name }}"
+                            id="role-{{ $role->id }}"
+                            {{ $hasRoles->contains($role->name) ? 'checked' : '' }}
+                            class="rounded border-gray-300 text-blue-600 focus:ring focus:ring-blue-200">
+                        <span class="text-gray-700">{{ $role->name }}</span>
+                    </label>
                 @empty
-                    <p class="text-muted">Tidak ada role tersedia.</p>
+                    <p class="text-gray-400 text-sm">Tidak ada role tersedia.</p>
                 @endforelse
             </div>
         </div>
 
-        <!-- Tombol Simpan -->
-        <div class="d-flex gap-2">
-            <a href="{{ route('users.index') }}" class="btn btn-light border shadow-sm px-3">
-                <i class="fa fa-arrow-left me-2 text-secondary"></i>
-                <span class="text-secondary fw-semibold">Batal</span>
+        <!-- Tombol -->
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('users.index') }}" class="flex items-center gap-2 px-4 py-2 bg-gray-100 border text-gray-700 rounded shadow-sm hover:bg-gray-200 transition">
+                <i class="fa fa-arrow-left"></i> Batal
             </a>
-
-            <button type="submit" class="btn btn-primary shadow-sm px-4">
-                <i class="fa fa-save me-2"></i> Simpan
+            <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm transition">
+                <i class="fa fa-save"></i> Simpan
             </button>
         </div>
     </form>

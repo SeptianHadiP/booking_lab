@@ -19,8 +19,10 @@ return new class extends Migration
             $table->unsignedBigInteger('lab_id')->nullable();
 
             // Relasi ke semester
-            // $table->string('nama');
-            // $table->foreign('semester_id')->references('code')->on('semesters')->onDelete('cascade');
+            $table->unsignedBigInteger('semester_id')->nullable();
+            // after('lab_id');
+            // jika ingin menambahkan foreign key
+            // $table->foreign('semester_id')->references('id')->on('semesters')->onDelete('cascade');
 
             // Hapus kolom nama_dosen
             $table->date('tanggal_praktikum');

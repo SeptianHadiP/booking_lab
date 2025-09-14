@@ -8,6 +8,8 @@ use App\Models\Kelas;
 use App\Models\Laboratorium;
 use App\Models\MataKuliahPraktikum;
 use App\Models\Semester;
+use App\Models\User;
+use App\Notifications\EmailSubmitSchedule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,9 +26,9 @@ class SchedulingsController extends Controller
 
     public function show($id)
     {
-        // $schedule = Schedulings::with('user')->findOrFail($id);
         $schedule = Schedulings::with(['user', 'kelas', 'mata_kuliah_praktikum', 'laboratorium', 'documentation'])
-        ->findOrFail($id);
+            ->findOrFail($id);
+
         return view('dashboard.pages.schedulings.show-scheduling', compact('schedule'));
     }
 
@@ -53,18 +55,18 @@ class SchedulingsController extends Controller
             'deskripsi'         => 'required|string',
         ]);
 
-        // Ambil semester aktif berdasarkan tanggal booking
-        // $semester = Semester::where('start_date', '<=', $request->tanggal_praktikum)
-        //                     ->where('end_date', '>=', $request->tanggal_praktikum)
-        //                     ->first();
+        // Ambil semester aktif berdasarkan tanggal praktikum
+        $semester = Semester::where('start_date', '<=', $request->tanggal_praktikum)
+                            ->where('end_date', '>=', $request->tanggal_praktikum)
+                            ->first();
 
-        // if (!$semester) {
-        //     return back()->withErrors([
-        //         'tanggal_praktikum' => 'Tanggal yang dipilih tidak termasuk dalam semester aktif.'
-        //     ])->withInput();
-        // }
+        if (!$semester) {
+            return back()->withErrors([
+                'tanggal_praktikum' => 'Tanggal yang dipilih tidak termasuk dalam semester aktif.'
+            ])->withInput();
+        }
 
-        // Cek bentrok jadwal
+        // Cek bentrok jadwal (lab, tanggal, waktu)
         $bentrok = Schedulings::where('tanggal_praktikum', $request->tanggal_praktikum)
             ->where('waktu_praktikum', $request->waktu_praktikum)
             ->where('lab_id', $request->lab_id)
@@ -79,19 +81,22 @@ class SchedulingsController extends Controller
         // Upload modul
         $modulPath = $request->file('modul_praktikum')->store('modul_praktikum', 'public');
 
-        Schedulings::create([
+      $schedule =   Schedulings::create([
             'user_id'           => Auth::id(),
             'kelas_id'          => $request->kelas_id,
             'mata_kuliah_id'    => $request->mata_kuliah_id,
             'lab_id'            => $request->lab_id,
-            // 'semester_id'       => $semester->code, // simpan semester aktif
+            'semester_id'       => $semester->id, // simpan semester aktif
             'tanggal_praktikum' => $request->tanggal_praktikum,
             'waktu_praktikum'   => $request->waktu_praktikum,
             'modul_praktikum'   => $modulPath,
             'judul_praktikum'   => $request->judul_praktikum,
             'deskripsi'         => $request->deskripsi,
-        ]);
-
+        ]); 
+        // User::notify(new EmailSubmitSchedule($schdule));
+        // $user->notify(new EmailSubmitSchedule($schdule));
+        //Auth::user()->notify(new EmailSubmitSchedule($schdule));
+        //    Auth::user()?->notify(new EmailSubmitSchedule($schedule));
         return redirect()->route('schedulings.create')->with('success', 'Jadwal berhasil ditambahkan!');
     }
 
@@ -118,7 +123,18 @@ class SchedulingsController extends Controller
             'modul_praktikum'   => 'nullable|mimes:pdf,doc,docx|max:2048',
         ]);
 
-        // Cek bentrok jadwal
+        // Ambil semester aktif sesuai tanggal update
+        $semester = Semester::where('start_date', '<=', $request->tanggal_praktikum)
+                            ->where('end_date', '>=', $request->tanggal_praktikum)
+                            ->first();
+
+        if (!$semester) {
+            return back()->withErrors([
+                'tanggal_praktikum' => 'Tanggal yang dipilih tidak termasuk dalam semester aktif.'
+            ])->withInput();
+        }
+
+        // Cek bentrok jadwal (lab, tanggal, waktu)
         $conflict = Schedulings::where('tanggal_praktikum', $request->tanggal_praktikum)
             ->where('waktu_praktikum', $request->waktu_praktikum)
             ->where('lab_id', $request->lab_id)
@@ -126,7 +142,9 @@ class SchedulingsController extends Controller
             ->exists();
 
         if ($conflict) {
-            return redirect()->back()->withErrors(['tanggal_praktikum' => 'Tanggal dan waktu praktikum sudah terpakai.'])->withInput();
+            return redirect()->back()->withErrors([
+                'tanggal_praktikum' => 'Tanggal dan waktu praktikum sudah terpakai.'
+            ])->withInput();
         }
 
         $schedule = Schedulings::findOrFail($id);
@@ -136,6 +154,7 @@ class SchedulingsController extends Controller
             'kelas_id'          => $request->kelas_id,
             'mata_kuliah_id'    => $request->mata_kuliah_id,
             'lab_id'            => $request->lab_id,
+            'semester_id'       => $semester->id, // simpan semester aktif
             'tanggal_praktikum' => $request->tanggal_praktikum,
             'waktu_praktikum'   => $request->waktu_praktikum,
             'judul_praktikum'   => $request->judul_praktikum,
@@ -144,7 +163,6 @@ class SchedulingsController extends Controller
 
         // File handling
         if ($request->hasFile('modul_praktikum')) {
-            // Hapus file lama
             if ($schedule->modul_praktikum && Storage::disk('public')->exists($schedule->modul_praktikum)) {
                 Storage::disk('public')->delete($schedule->modul_praktikum);
             }
@@ -161,7 +179,6 @@ class SchedulingsController extends Controller
     {
         $schedule = Schedulings::findOrFail($id);
 
-        // Jika ada file modul, hapus juga
         if ($schedule->modul_praktikum && Storage::disk('public')->exists($schedule->modul_praktikum)) {
             Storage::disk('public')->delete($schedule->modul_praktikum);
         }

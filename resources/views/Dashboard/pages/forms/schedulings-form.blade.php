@@ -1,95 +1,101 @@
-<form action="{{ isset($schedule) ? route('schedulings.update', $schedule->id) : route('schedulings.store') }}" method="POST" enctype="multipart/form-data">
+<!-- resources/views/dashboard/pages/forms/schedulings-form.blade.php -->
+<form action="{{ isset($schedule) ? route('schedulings.update', $schedule->id) : route('schedulings.store') }}"
+      method="POST" enctype="multipart/form-data" class="space-y-6">
     @csrf
     @if(isset($schedule))
         @method('PUT')
     @endif
 
-    <div class="mb-3">
-        <label for="nama" class="form-label">Nama Lengkap</label>
-        <input type="text" class="form-control" id="nama"
-            value="{{ Auth::user()->name }}" readonly>
-
-        {{-- Hidden field untuk mengirim user_id --}}
+    <!-- Nama Lengkap (readonly) -->
+    <div class="inputContainer">
+        <input type="text" class="customInput" value="{{ Auth::user()->name }}" readonly placeholder=" " />
+        <label class="inputLabel">Nama Lengkap</label>
+        <div class="inputUnderline"></div>
         <input type="hidden" name="user_id" value="{{ Auth::id() }}">
     </div>
 
-    <div class="mb-3">
-        <label for="judul_praktikum" class="form-label">Judul Praktikum</label>
-        <input type="text" class="form-control" name="judul_praktikum" id="judul_praktikum"
-            value="{{ old('judul_praktikum', $schedule->judul_praktikum ?? '') }}"
-            placeholder="Contoh: Praktikum Analisis Numerik - Iterasi Jacobi" required>
+    <!-- Semester Aktif (readonly) -->
+    @php
+        $activeSemester = \App\Models\Semester::getAktif();
+    @endphp
+    @if($activeSemester)
+        <div class="inputContainer">
+            <input type="text" class="customInput"
+                value="{{ $activeSemester->tahun_ajar }} ({{ \Illuminate\Support\Str::contains($activeSemester->id, '1') ? 'Ganjil' : 'Genap' }})"
+                readonly placeholder=" " />
+            <label class="inputLabel">Semester Aktif</label>
+            <div class="inputUnderline"></div>
+            <input type="hidden" name="semester_id" value="{{ $activeSemester->id }}">
+        </div>
+    @else
+        <p class="text-sm text-red-600 mb-3">Tidak ada semester aktif saat ini. Silakan hubungi admin.</p>
+    @endif
+
+    <!-- Judul Praktikum -->
+    <div class="inputContainer">
+        <input type="text" name="judul_praktikum" id="judul_praktikum"
+               value="{{ old('judul_praktikum', $schedule->judul_praktikum ?? '') }}"
+               required placeholder=" " class="customInput" />
+        <label for="judul_praktikum" class="inputLabel">Judul Praktikum</label>
+        <div class="inputUnderline"></div>
     </div>
 
-    <div class="form-group mb-3">
-        <label for="kelas_id">Kelas</label>
-        <select name="kelas_id" id="kelas_id" class="form-control" required>
-            <option value="" disabled selected>-- Pilih Kelas --</option>
+    <!-- Kelas -->
+    <div class="inputContainer">
+        <select name="kelas_id" id="kelas_id" required class="customInput">
+            <option value="" disabled {{ old('kelas_id', $schedule->kelas_id ?? '') ? '' : 'selected' }}>-- Pilih Kelas --</option>
             @foreach ($kelasList as $kelas)
-                <option value="{{ $kelas->id }}"
-                    {{ old('kelas_id', $schedule->kelas_id ?? '') == $kelas->id ? 'selected' : '' }}>
+                <option value="{{ $kelas->id }}" {{ old('kelas_id', $schedule->kelas_id ?? '') == $kelas->id ? 'selected' : '' }}>
                     {{ $kelas->nama_kelas }}
                 </option>
             @endforeach
         </select>
+        <label for="kelas_id" class="inputLabel">Kelas</label>
+        <div class="inputUnderline"></div>
     </div>
 
-    <div class="mb-3">
-        <label for="lab_id" class="form-label">Tempat Lab</label>
-        <select class="form-select" id="lab_id" name="lab_id" required>
+    <!-- Tempat Lab -->
+    <div class="inputContainer">
+        <select name="lab_id" id="lab_id" required class="customInput">
             <option value="">-- Pilih Tempat Lab --</option>
             @foreach ($labList as $lab)
-                <option value="{{ $lab->id }}"
-                    {{ old('lab_id', $schedule->lab_id ?? '') == $lab->id ? 'selected' : '' }}>
+                <option value="{{ $lab->id }}" {{ old('lab_id', $schedule->lab_id ?? '') == $lab->id ? 'selected' : '' }}>
                     {{ $lab->nama_ruangan }}
                 </option>
             @endforeach
         </select>
+        <label for="lab_id" class="inputLabel">Tempat Lab</label>
+        <div class="inputUnderline"></div>
     </div>
 
-    <div class="mb-3">
-        <label for="mata_kuliah_id" class="form-label">Mata Kuliah</label>
-        <select name="mata_kuliah_id" id="mata_kuliah_id" class="form-select" required>
+    <!-- Mata Kuliah -->
+    <div class="inputContainer">
+        <select name="mata_kuliah_id" id="mata_kuliah_id" required class="customInput">
             <option value="">-- Pilih Mata Kuliah --</option>
             @foreach ($mataKuliahList as $matkul)
-                <option value="{{ $matkul->id }}"
-                    {{ old('mata_kuliah_id', $schedule->mata_kuliah_id ?? '') == $matkul->id ? 'selected' : '' }}>
+                <option value="{{ $matkul->id }}" {{ old('mata_kuliah_id', $schedule->mata_kuliah_id ?? '') == $matkul->id ? 'selected' : '' }}>
                     {{ $matkul->nama_mata_kuliah }}
                 </option>
             @endforeach
         </select>
+        <label for="mata_kuliah_id" class="inputLabel">Mata Kuliah</label>
+        <div class="inputUnderline"></div>
     </div>
 
-    <div class="mb-3">
-        <label for="semester_id" class="form-label">Semester / Tahun Ajar</label>
-        <select name="semester_id" id="semester_id" class="form-select" required>
-            <option value="">-- Pilih Semester --</option>
-            @foreach ($semesters as $semester)
-                <option value="{{ $semester->id }}"
-                    {{ old('semester_id', $schedule->semester_id ?? '') == $semester->id ? 'selected' : '' }}>
-                    {{ $semester->nama_semester }} ({{ $semester->tahun_ajar }})
-                    @if($semester->is_active) - [Aktif] @endif
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="tanggal" class="form-label">Tanggal Praktikum</label>
-        <input type="date"
-            class="form-control @error('tanggal_praktikum') is-invalid @enderror"
-            id="tanggal"
-            name="tanggal_praktikum"
-            value="{{ old('tanggal_praktikum', $schedule->tanggal_praktikum ?? '') }}"
-            required>
+    <!-- Tanggal -->
+    <div class="inputContainer">
+        <input type="date" name="tanggal_praktikum" id="tanggal"
+               value="{{ old('tanggal_praktikum', $schedule->tanggal_praktikum ?? '') }}"
+               required placeholder=" " class="customInput @error('tanggal_praktikum') border-red-500 @enderror" />
+        <label for="tanggal" class="inputLabel">Tanggal Praktikum</label>
         @error('tanggal_praktikum')
-            <div class="invalid-feedback">{{ $message }}</div>
+            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
         @enderror
     </div>
 
-    <div class="mb-3">
-        <label for="waktu" class="form-label">Waktu Praktikum</label>
-        <select class="form-select @error('waktu_praktikum') is-invalid @enderror"
-                id="waktu" name="waktu_praktikum" required>
+    <!-- Waktu -->
+    <div class="inputContainer">
+        <select name="waktu_praktikum" id="waktu" required class="customInput @error('waktu_praktikum') border-red-500 @enderror">
             <option value="">-- Pilih Waktu --</option>
             @foreach([
                 '08:00 - 10:30 (Sesi 1)',
@@ -97,54 +103,149 @@
                 '13:30 - 15:30 (Sesi 3)',
                 '15:45 - 18:00 (Sesi 4)'
             ] as $waktu)
-                <option value="{{ $waktu }}"
-                    {{ old('waktu_praktikum', $schedule->waktu_praktikum ?? '') == $waktu ? 'selected' : '' }}>
+                <option value="{{ $waktu }}" {{ old('waktu_praktikum', $schedule->waktu_praktikum ?? '') == $waktu ? 'selected' : '' }}>
                     {{ $waktu }}
                 </option>
             @endforeach
         </select>
+        <label for="waktu" class="inputLabel">Waktu Praktikum</label>
         @error('waktu_praktikum')
-            <div class="invalid-feedback">{{ $message }}</div>
+            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
         @enderror
     </div>
 
-    <div class="mb-3">
-        <label for="modul" class="form-label">Upload Modul Praktikum</label>
-        <input type="file"
-            class="form-control @error('modul_praktikum') is-invalid @enderror"
-            id="modul" name="modul_praktikum"
-            accept=".pdf,.doc,.docx"
-            {{ isset($schedule) ? '' : 'required' }}>
+    <!-- Upload Modul -->
+    <div class="inputContainer">
+        <input type="file" id="modul" name="modul_praktikum" accept=".pdf,.doc,.docx"
+               class="customInput @error('modul_praktikum') border-red-500 @enderror"
+               {{ isset($schedule) ? '' : 'required' }} />
+        <label for="modul" class="inputLabel">Upload Modul Praktikum</label>
+        <!-- <div class="inputUnderline"></div> -->
         @error('modul_praktikum')
-            <div class="invalid-feedback">{{ $message }}</div>
+            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
         @enderror
         @if (isset($schedule) && $schedule->modul_praktikum)
-            <small class="text-muted">File sebelumnya: <a href="{{ asset('storage/' . $schedule->modul_praktikum) }}" target="_blank">Lihat</a></small>
-        @endif
-        @if ($errors->any())
-            <small class="text-muted d-block mt-1">* Silakan upload ulang file karena input file tidak tersimpan otomatis.</small>
+            <p class="text-sm text-gray-500 mt-1">File sebelumnya:
+                <a href="{{ asset('storage/' . $schedule->modul_praktikum) }}" target="_blank" class="text-blue-600 underline">Lihat</a>
+            </p>
         @endif
     </div>
 
-    <div class="mb-3">
-        <label for="tools" class="form-label">deskripsi</label>
-        <textarea class="form-control" id="tools" name="deskripsi" rows="3" required
-            placeholder="Contoh: Visual Studio Code, XAMPP, Wireshark">{{ old('deskripsi', $schedule->deskripsi ?? '') }}</textarea>
+    <!-- Deskripsi -->
+    <div class="inputGroup">
+        <textarea id="deskripsi" name="deskripsi" rows="3" required>{{ old('deskripsi', $schedule->deskripsi ?? '') }}</textarea>
+        <label for="deskripsi">Deskripsi</label>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-
-        {{-- Tombol Kembali --}}
-        <a href="{{ url()->previous() }}" class="btn btn-light border d-flex align-items-center shadow-sm px-3">
-            <i class="fa fa-arrow-left me-2 text-secondary"></i>
-            <span class="text-secondary fw-semibold">Batal</span>
+    <!-- Tombol -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t">
+        <a href="{{ url()->previous() }}"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-600 shadow-sm hover:bg-gray-50">
+            <i class="fa fa-arrow-left mr-2"></i>
+            <span>Batal</span>
         </a>
 
-        {{-- Tombol Submit --}}
-        <button type="submit" class="btn btn-primary d-flex align-items-center px-4 shadow-sm">
-            <i class="fa {{ isset($schedule) ? 'fa-save' : 'fa-paper-plane' }} me-2"></i>
+        <button type="submit"
+                class="inline-flex items-center px-6 py-2 rounded-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700">
+            <i class="fa {{ isset($schedule) ? 'fa-save' : 'fa-paper-plane' }} mr-2"></i>
             <span>{{ isset($schedule) ? 'Update' : 'Simpan' }}</span>
         </button>
-
     </div>
 </form>
+
+<style>
+    .inputContainer {
+        position: relative;
+        margin-bottom: 14px;
+    }
+
+    .customInput {
+        width: 100%;
+        padding: 8px 6px;
+        font-size: 14px;
+        background-color: transparent;
+        border: none;
+        border-bottom: 2px solid rgb(200,200,200); /* abu soft */
+        outline: none;
+        color: #111;
+        transition: border-color 0.2s ease;
+    }
+
+    .customInput:focus,
+    .customInput:not(:placeholder-shown) {
+        border-color: rgb(150,150,200); /* fokus ungu soft */
+    }
+
+    .inputLabel {
+        position: absolute;
+        top: 8px;
+        left: 2px;
+        pointer-events: none;
+        font-size: 14px;
+        color: rgb(100,100,100);
+        transition: 0.25s ease;
+    }
+
+    .customInput:focus + .inputLabel,
+    .customInput:not(:placeholder-shown) + .inputLabel,
+    select.customInput:valid + .inputLabel {
+        top: -8px;
+        font-size: 12px;
+        color: #000;
+    }
+
+    .inputUnderline {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: rgb(200,200,200);
+    }
+
+    /* === Style khusus untuk Deskripsi (textarea kotak) === */
+    .inputGroup {
+        font-family: 'Segoe UI', sans-serif;
+        margin: 1em 0;
+        width: 100%;
+        position: relative;
+    }
+
+    .inputGroup textarea {
+        font-size: 100%;
+        padding: 0.8em;
+        outline: none;
+        border: 2px solid rgb(200, 200, 200);
+        background-color: transparent;
+        border-radius: 6px;
+        width: 100%;
+        resize: vertical;
+        min-height: 90px;
+        color: #111;
+        transition: border-color 0.2s ease;
+    }
+
+    .inputGroup label {
+        font-size: 100%;
+        position: absolute;
+        left: 0;
+        padding: 0.8em;
+        margin-left: 0.5em;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        color: rgb(100, 100, 100);
+    }
+
+    .inputGroup :is(textarea:focus, textarea:valid) ~ label {
+        transform: translateY(-50%) scale(.9);
+        margin: 0;
+        margin-left: 1.3em;
+        padding: 0.4em;
+        background-color: white;
+        color: #000;
+    }
+
+    .inputGroup textarea:focus {
+        border-color: rgb(150,150,200);
+    }
+</style>

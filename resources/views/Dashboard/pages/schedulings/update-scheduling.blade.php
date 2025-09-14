@@ -1,14 +1,17 @@
+<!-- resources/views/dashboard/pages/schedulings/update-scheduling.blade.php -->
 @extends('dashboard.layouts.app')
 
 @section('content')
-<div class="bg-white shadow rounded p-4">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+<div class="bg-white shadow rounded-lg p-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-6">
         <div>
-            <h2 class="h4 fw-semibold text-dark mb-1">Edit Jadwal</h2>
-            <p class="text-muted small mb-0">Perbarui jadwal praktikum yang telah dibuat</p>
+            <h2 class="text-xl font-semibold text-gray-800 mb-1">Edit Jadwal</h2>
+            <p class="text-sm text-gray-500">Perbarui jadwal praktikum yang telah dibuat</p>
         </div>
     </div>
 
+    {{-- SweetAlert auto success --}}
     @if (session('success') && session('alert_type') == 'auto')
         <script>
             Swal.fire({
@@ -22,6 +25,7 @@
         </script>
     @endif
 
+    {{-- Form edit --}}
     @include('dashboard.pages.forms.schedulings-form', ['schedule' => $schedule])
 </div>
 @endsection

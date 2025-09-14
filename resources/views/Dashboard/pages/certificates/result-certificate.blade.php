@@ -1,29 +1,34 @@
+<!-- resources/views/dashboard/pages/certificates/result-certificate.blade.php -->
 @extends('dashboard.layouts.app')
 
 @section('content')
 <div class="bg-white shadow rounded p-4">
+    <!-- Header -->
     <div class="text-center mb-4">
-        <h2 class="h4 fw-semibold text-success">✅ Sertifikat Berhasil Dibuat</h2>
-        <p class="text-muted small">Berikut adalah daftar sertifikat yang berhasil di-generate.</p>
+        <h2 class="text-lg font-semibold text-green-600">✅ Sertifikat Berhasil Dibuat</h2>
+        <p class="text-sm text-gray-500">Berikut adalah daftar sertifikat yang berhasil di-generate.</p>
     </div>
 
-    <ul class="list-group mb-4">
-        @forelse ($generatedCertificates as $file)
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ $file }}</span>
-                <a href="{{ asset('storage/generated_certificates/' . $file) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                    🔗 Lihat Sertifikat
-                </a>
-            </li>
-        @empty
-            <li class="list-group-item text-center text-muted">
-                Tidak ada sertifikat yang tersedia.
-            </li>
-        @endforelse
-    </ul>
+    <ul class="space-y-2">
+    @forelse ($files  as $file)
+        <li class="flex justify-between items-center p-2 border rounded hover:bg-gray-50">
+            <span class="text-gray-800 break-all">{{ $file }}</span>
+            <a href="{{ asset('storage/generated_certificates/' . $file) }}" target="_blank"
+               class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50">
+                🔗 Lihat Sertifikat
+            </a>
+        </li>
+    @empty
+        <li class="text-center text-gray-400 p-2 border rounded">
+            Tidak ada sertifikat yang tersedia.
+        </li>
+    @endforelse
+</ul>
 
-    <div class="text-center">
-        <a href="{{ route('certificate.create') }}" class="btn btn-secondary">
+
+    <div class="text-center mt-6">
+        <a href="{{ route('certificate.create', ['laprakId' => $laprakId]) }}"
+        class="inline-flex items-center px-4 py-2 rounded-lg bg-gray-200 text-gray-700 shadow hover:bg-gray-300">
             ⬅️ Kembali ke Form
         </a>
     </div>

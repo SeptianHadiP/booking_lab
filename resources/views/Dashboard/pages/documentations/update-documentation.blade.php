@@ -1,11 +1,13 @@
+<!-- resources/views/dashboard/pages/documentations/edit-documentation.blade.php -->
 @extends('dashboard.layouts.app')
 
 @section('content')
-<div class="container mt-3">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+<div class="bg-white shadow rounded p-4">
+    <!-- Header -->
+    <div class="flex flex-wrap items-start justify-between gap-2 mb-6">
         <div>
-            <h2 class="h4 fw-semibold text-dark mb-1">Edit Dokumentasi Praktikum</h2>
-            <p class="text-muted small mb-0">Perbarui dokumentasi praktikum yang telah dibuat</p>
+            <h2 class="text-lg font-semibold text-gray-800 mb-1">Edit Dokumentasi</h2>
+            <p class="text-sm text-gray-500">Perbarui dokumentasi kegiatan praktikum</p>
         </div>
     </div>
 
@@ -21,7 +23,10 @@
             });
         </script>
     @endif
+
     <form action="{{ route('documentations.update', $documentation->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
         @include('dashboard.pages.forms.documentation-form')
     </form>
 </div>

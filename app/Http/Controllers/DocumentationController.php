@@ -20,10 +20,9 @@ class DocumentationController extends Controller
 
     public function create($scheduling_id)
     {
-        $kelasList = Kelas::all();
-        $mataKuliahList = MataKuliahPraktikum::all();
-        $labList = Laboratorium::all();
-        $scheduling = Schedulings::findOrFail($scheduling_id);
+        $scheduling = Schedulings::with(['user', 'mata_kuliah_praktikum', 'kelas', 'laboratorium'])
+            ->findOrFail($scheduling_id);
+
         return view('dashboard.pages.documentations.create-documentation', compact('scheduling'));
     }
 
@@ -33,18 +32,18 @@ class DocumentationController extends Controller
             'scheduling_id' => 'required|exists:schedulings,id',
             'nama' => 'required|string|max:255',
             'foto_1' => 'required|image|max:2048',
-            'foto_2' => 'required|image|max:2048',
-            'absen_1' => 'nullable|image|max:2048',
+            'foto_2' => 'nullable|image|max:2048',
+            'absen_1' => 'required|image|max:2048',
             'absen_2' => 'nullable|image|max:2048',
         ]);
 
         $data = $request->only(['scheduling_id', 'nama']);
 
-        // Simpan ke folder terpisah berdasarkan jenis
+        // Simpan file
         $data['foto_1'] = $request->file('foto_1')->store('images/documentation/kegiatan', 'public');
-        $data['foto_2'] = $request->file('foto_2')->store('images/documentation/kegiatan', 'public');
-        $data['absen_1'] = $request->file('absen_1')?->store('images/documentation/absensi', 'public');
-        $data['absen_2'] = $request->file('absen_2')?->store('images/documentation/absensi', 'public');
+        $data['foto_2'] = $request->file('foto_2') ? $request->file('foto_2')->store('images/documentation/kegiatan', 'public') : null;
+        $data['absen_1'] = $request->file('absen_1')->store('images/documentation/absensi', 'public');
+        $data['absen_2'] = $request->file('absen_2') ? $request->file('absen_2')->store('images/documentation/absensi', 'public') : null;
 
         Documentation::create($data);
 
@@ -55,16 +54,31 @@ class DocumentationController extends Controller
 
     public function show($id)
     {
-        $documentation = Documentation::with('schedule')->findOrFail($id);
-        $scheduling = $documentation->schedule;
+        $documentation = Documentation::with([
+            'scheduling.user',
+            'scheduling.mata_kuliah_praktikum',
+            'scheduling.kelas',
+            'scheduling.laboratorium'
+        ])->findOrFail($id);
+
+        $scheduling = $documentation->scheduling;
 
         return view('dashboard.pages.documentations.show-documentation', compact('scheduling', 'documentation'));
     }
 
     public function edit($id)
     {
-        $documentation = Documentation::findOrFail($id);
-        return view('dashboard.pages.documentations.update-documentation', compact('documentation'));
+        $documentation = Documentation::with([
+            'schedule.user',
+            'schedule.mata_kuliah_praktikum',
+            'schedule.kelas',
+            'schedule.laboratorium'
+        ])->findOrFail($id);
+
+        // ambil scheduling dari relasi documentation
+        $scheduling = $documentation->schedule;
+
+        return view('dashboard.pages.documentations.update-documentation', compact('documentation', 'scheduling'));
     }
 
     public function update(Request $request, $id)
@@ -80,7 +94,7 @@ class DocumentationController extends Controller
 
         $data = $request->except(['_token', '_method']);
 
-        // Simpan ulang hanya jika ada file baru di-upload
+        // Update file jika ada yang baru
         foreach (['foto_1', 'foto_2'] as $field) {
             if ($request->hasFile($field)) {
                 if ($documentation->$field && Storage::disk('public')->exists($documentation->$field)) {
@@ -105,7 +119,6 @@ class DocumentationController extends Controller
             ->route('documentation.index')
             ->with('success', 'Dokumentasi berhasil diperbarui!');
     }
-
 
     public function destroy($id)
     {

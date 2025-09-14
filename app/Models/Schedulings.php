@@ -4,23 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
 class Schedulings extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id', // ganti dari nama_dosen → user_id
+        'user_id',
         'kelas_id',
         'mata_kuliah_id',
         'lab_id',
-        // 'semester_id',
+        'semester_id',
         'tanggal_praktikum',
         'waktu_praktikum',
         'modul_praktikum',
         'judul_praktikum',
         'deskripsi',
-        'lab_id',
     ];
 
     // Relasi ke User (Dosen)
@@ -54,8 +54,8 @@ class Schedulings extends Model
     }
 
     // Relasi ke Semester
-    // public function semester()
-    // {
-    //     return $this->belongsTo(Semester::class, 'semester_id', 'id');
-    // }
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class, 'semester_id', 'id');
+    }
 }
