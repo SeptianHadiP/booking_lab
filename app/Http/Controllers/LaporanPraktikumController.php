@@ -14,6 +14,26 @@ use Illuminate\Support\Str;
 
 class LaporanPraktikumController extends Controller
 {
+    private function generateFilePath($type, $semester, $mataKuliah, $kelas, $file)
+    {
+        // rapikan tahun ajar (ganti "/" jadi "-")
+        $tahunAjar   = Str::slug(str_replace('/', '-', $semester->tahun_ajar ?? date('Y')));
+        $namaMatkul  = Str::slug($mataKuliah->nama_mata_kuliah ?? 'mata-kuliah');
+        $namaKelas   = Str::slug($kelas->nama_kelas ?? 'kelas');
+
+        // folder base
+        $baseFolder = $type === 'laporan'
+            ? 'laporan-praktikum'
+            : 'nilai-praktikum';
+
+        // bikin path
+        return $file->storeAs(
+            "assets/{$baseFolder}/{$tahunAjar}/{$namaMatkul}/{$namaKelas}",
+            $file->getClientOriginalName(),
+            'public'
+        );
+    }
+
     public function index()
     {
         $lapraks = LaporanPraktikum::with(['kelas', 'mata_kuliah_praktikum', 'semester', 'user'])
@@ -48,8 +68,12 @@ class LaporanPraktikumController extends Controller
         ]);
 
         try {
-            $laporanPath = $request->file('laporan_file')->store('laporan', 'public');
-            $nilaiPath   = $request->file('nilai_file')->store('nilai', 'public');
+            $kelas     = Kelas::findOrFail($request->kelas_id);
+            $mataKul   = MataKuliahPraktikum::findOrFail($request->mata_kuliah_id);
+            $semester  = Semester::findOrFail($request->semester_id);
+
+            $laporanPath = $this->generateFilePath('laporan', $semester, $mataKul, $kelas, $request->file('laporan_file'));
+            $nilaiPath   = $this->generateFilePath('nilai', $semester, $mataKul, $kelas, $request->file('nilai_file'));
 
             LaporanPraktikum::create([
                 'user_id'        => Auth::id(),
@@ -109,6 +133,10 @@ class LaporanPraktikumController extends Controller
         ]);
 
         try {
+            $kelas     = Kelas::findOrFail($request->kelas_id);
+            $mataKul   = MataKuliahPraktikum::findOrFail($request->mata_kuliah_id);
+            $semester  = Semester::findOrFail($request->semester_id);
+
             $data = $request->only(['kelas_id', 'mata_kuliah_id', 'semester_id', 'deskripsi']);
 
             // replace laporan_file jika ada
@@ -116,7 +144,7 @@ class LaporanPraktikumController extends Controller
                 if ($laprak->laporan_file && Storage::disk('public')->exists($laprak->laporan_file)) {
                     Storage::disk('public')->delete($laprak->laporan_file);
                 }
-                $data['laporan_file'] = $request->file('laporan_file')->store('laporan', 'public');
+                $data['laporan_file'] = $this->generateFilePath('laporan', $semester, $mataKul, $kelas, $request->file('laporan_file'));
             }
 
             // replace nilai_file jika ada
@@ -124,7 +152,7 @@ class LaporanPraktikumController extends Controller
                 if ($laprak->nilai_file && Storage::disk('public')->exists($laprak->nilai_file)) {
                     Storage::disk('public')->delete($laprak->nilai_file);
                 }
-                $data['nilai_file'] = $request->file('nilai_file')->store('nilai', 'public');
+                $data['nilai_file'] = $this->generateFilePath('nilai', $semester, $mataKul, $kelas, $request->file('nilai_file'));
             }
 
             $laprak->update($data);
@@ -140,36 +168,68 @@ class LaporanPraktikumController extends Controller
 
     public function destroy($id)
     {
-        $laprak = LaporanPraktikum::findOrFail($id);
+        $laprak = LaporanPraktikum::with(['kelas', 'mata_kuliah_praktikum', 'semester', 'user'])->findOrFail($id);
 
         try {
-            if ($laprak->laporan_file && Storage::disk('public')->exists($laprak->laporan_file)) {
-                Storage::disk('public')->delete($laprak->laporan_file);
-            }
-            if ($laprak->nilai_file && Storage::disk('public')->exists($laprak->nilai_file)) {
-                Storage::disk('public')->delete($laprak->nilai_file);
+            // Paths
+            $tahunAjar   = Str::slug(str_replace('/', '-', $laprak->semester->tahun_ajar ?? date('Y')));
+            $mataKul     = Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
+            $kelas       = Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
+
+            $laporanFolder = dirname($laprak->laporan_file ?? '');
+            $nilaiFolder   = dirname($laprak->nilai_file ?? '');
+            $certificateFolder = "assets/generated_certificates/{$tahunAjar}/{$mataKul}/{$kelas}";
+
+            // 1. Hapus sertifikat jika ada
+            if (Storage::disk('public')->exists($certificateFolder)) {
+                $certificateFiles = Storage::disk('public')->allFiles($certificateFolder);
+                foreach ($certificateFiles as $file) {
+                    Storage::disk('public')->delete($file);
+                }
+                Storage::disk('public')->deleteDirectory($certificateFolder);
             }
 
+            // 2. Hapus file laporan & folder jika kosong
+            $this->deleteFileAndFolderIfExists($laprak->laporan_file);
+
+            // 3. Hapus file nilai & folder jika kosong
+            $this->deleteFileAndFolderIfExists($laprak->nilai_file);
+
+            // 4. Hapus record database
             $laprak->delete();
 
-            return redirect()
-                ->route('laprak.index')
-                ->with('success', 'Laporan berhasil dihapus!');
+            return redirect()->route('laprak.index')->with('success', 'Laporan dan file terkait berhasil dihapus!');
         } catch (\Exception $e) {
             Log::error('Gagal hapus laporan: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menghapus laporan!');
         }
     }
+
+    /**
+     * Helper untuk hapus file dan folder jika kosong
+     */
+    private function deleteFileAndFolderIfExists(?string $filePath)
+    {
+        if ($filePath && Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
+
+            $folder = dirname($filePath);
+            if (empty(Storage::disk('public')->files($folder))) {
+                Storage::disk('public')->deleteDirectory($folder);
+            }
+        }
+    }
+
     public function certificates($id)
     {
         $laprak = LaporanPraktikum::with(['kelas', 'mata_kuliah_praktikum', 'semester', 'user'])
             ->findOrFail($id);
 
-        $tahunAjaran = Str::slug($laprak->semester->tahun_ajar ?? date('Y'));
+        $tahunAjaran   = Str::slug(str_replace('/', '-', $laprak->semester->tahun_ajar ?? date('Y')));
         $mataKuliah  = Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
         $kelas       = Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
 
-        $basePath = "generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
+        $basePath = "assets/generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
         $certificateFiles = Storage::disk('public')->exists($basePath)
             ? Storage::disk('public')->files($basePath)
             : [];

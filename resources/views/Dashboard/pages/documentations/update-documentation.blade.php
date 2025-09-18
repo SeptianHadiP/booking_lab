@@ -11,7 +11,8 @@
         </div>
     </div>
 
-    @if (session('success') && session('alert_type') == 'auto')
+    <!-- Notifikasi Success Auto -->
+    @if (session('success') && session('alert_type') === 'auto')
         <script>
             Swal.fire({
                 icon: 'success',
@@ -24,6 +25,7 @@
         </script>
     @endif
 
+    <!-- Form Edit -->
     <form action="{{ route('documentations.update', $documentation->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -35,6 +37,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+{{-- Notifikasi Success --}}
 @if (session('success'))
     <script>
         Swal.fire({
@@ -50,6 +53,8 @@
             }
         });
     </script>
+
+{{-- Notifikasi Warning --}}
 @elseif ($errors->has('tanggal_praktikum'))
     <script>
         Swal.fire({
@@ -59,6 +64,8 @@
             confirmButtonText: 'OK'
         });
     </script>
+
+{{-- Notifikasi Error --}}
 @elseif (session('error'))
     <script>
         Swal.fire({

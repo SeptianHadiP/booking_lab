@@ -32,7 +32,7 @@ class Schedulings extends Model
     // Relasi ke Dokumentasi
     public function documentation()
     {
-        return $this->hasOne(Documentation::class, 'scheduling_id');
+        return $this->hasMany(Documentation::class, 'scheduling_id');
     }
 
     // Relasi ke Kelas

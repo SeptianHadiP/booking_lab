@@ -18,39 +18,29 @@
     </div>
 
     <!-- Export Buttons -->
-    <div class="flex flex-wrap gap-2 mb-4">
-        <button id="btnCsv"
-            class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
-            CSV
-        </button>
-        <button id="btnExcel"
-            class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
-            Excel
-        </button>
-        <button id="btnPdf"
-            class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
-            PDF
-        </button>
-        <button id="btnPrint"
-            class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
-            Print
-        </button>
+    @can('export.penjadwalan', $schedules)
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button id="btnCsv" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">CSV</button>
+            <button id="btnExcel" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Excel</button>
+            <button id="btnPdf" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">PDF</button>
+            <button id="btnPrint" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Print</button>
 
-        <!-- Column Visibility Dropdown -->
-        <div class="relative inline-block text-left">
-            <button id="btnColvis"
-                class="flex items-center gap-1 px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
-                Column visibility
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
-            <div id="colvisDropdown"
-                class="hidden absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+            <!-- Column Visibility Dropdown -->
+            <div class="relative inline-block text-left">
+                <button id="btnColvis"
+                    class="flex items-center gap-1 px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
+                    Column visibility
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="colvisDropdown"
+                    class="hidden absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                </div>
             </div>
         </div>
-    </div>
+    @endcan
 
     <!-- Toolbar -->
     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -115,13 +105,14 @@
         <thead class="bg-gray-100 text-xs uppercase text-gray-700 tracking-wide shadow-sm">
             <tr>
                 <th class="px-4 py-3 text-center border">No</th>
-                <th class="px-4 py-3 text-center border">Nama Dosen</th>
+                <th class="px-4 py-3 text-center border">Nama</th>
                 <th class="px-4 py-3 text-center border">Mata Kuliah</th>
                 <th class="px-4 py-3 text-center border">Kelas</th>
                 <th class="px-4 py-3 text-center border">Lab</th>
                 <th class="px-4 py-3 text-center border">Tahun Ajaran</th>
                 <th class="px-4 py-3 text-center border">Tanggal</th>
                 <th class="px-4 py-3 text-center border">Jam</th>
+                <th class="px-4 py-3 text-center border">Modul Praktikum</th>
                 <th class="px-4 py-3 text-center border">Aksi</th>
             </tr>
         </thead>
@@ -151,6 +142,17 @@
                 </td>
                 <td class="px-4 py-3 text-left border">
                     {{ $schedule->waktu_praktikum }}
+                </td>
+                <td class="px-4 py-3 text-left border">
+                    @if($schedule->modul_praktikum)
+                        <a href="{{ asset('storage/'.$schedule->modul_praktikum) }}"
+                        target="_blank"
+                        class="text-blue-600 hover:underline">
+                        Lihat Modul
+                        </a>
+                    @else
+                        -
+                    @endif
                 </td>
                 <td class="px-4 py-3 text-center border">
                     <div class="relative inline-block text-left">
@@ -185,10 +187,9 @@
                                 {{-- Dokumentasi --}}
                                 @can('buat.dokumentasi', $schedule)
                                     <li>
-                                        @if ($schedule->documentation)
-                                            <a href="{{ route('documentations.edit', $schedule->documentation->id) }}"
-                                            class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
-                                                <i class="bi bi-pencil-square text-yellow-500"></i> Edit Dokumentasi
+                                        @if ($schedule->documentation->isNotEmpty())
+                                            <a href="{{ route('documentations.edit', $schedule->documentation->first()->id) }}">
+                                                Edit Dokumentasi
                                             </a>
                                         @else
                                             <a href="{{ route('documentations.create', $schedule->id) }}"
@@ -248,18 +249,106 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+        function generateExportTitle() {
+            // Judul utama
+            let title = "Jadwal Praktikum || LabSchedule";
+
+            // Ambil filter aktif
+            let filterTexts = [];
+            for (let colIndex in activeFilters) {
+                let header = $('#schedulesTable thead th').eq(colIndex).text().trim();
+                let value = activeFilters[colIndex];
+                if (value) {
+                    filterTexts.push(header + ": " + value);
+                }
+            }
+
+            // Tambahkan filter di bawah judul
+            if (filterTexts.length > 0) {
+                title += "\n" + filterTexts.join(", ");
+            }
+
+            return title;
+        }
+
         var table = $('#schedulesTable').DataTable({
             dom: 'Brtip',
             paging: true,
             info: true,
             buttons: [
-                { extend: 'csv', exportOptions: { columns: ':visible:not(:last-child)' } },
-                { extend: 'excel', exportOptions: { columns: ':visible:not(:last-child)' } },
                 {
-                    extend: 'pdf',
-                    exportOptions: { columns: ':visible:not(:last-child)' },
+                    extend: 'csvHtml5',
+                    title: function() {
+                        return generateExportTitle();
+                    },
+                    exportOptions: {
+                        columns: ':visible:not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                // kalau ada <a>, ambil href
+                                if ($(node).find('a').length) {
+                                    let url = $(node).find('a').attr('href');
+                                    return url ? 'Lihat File (' + url + ')' : text;
+                                }else{
+                                    // Kalau ada teks, kembalikan teksnya
+                                    var text = $('<div>').html(data).text().trim();
+                                    if (text) return text;
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: function() {
+                        return generateExportTitle();
+                    },
+                    exportOptions: {
+                        columns: ':visible:not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                if ($(node).find('a').length) {
+                                    console.log($(node).find('a').attr('href'))
+                                    return $(node).find('a').attr('href'); // ambil URL aslinya
+                                }else{
+                                    // Kalau ada teks, kembalikan teksnya
+                                    var text = $('<div>').html(data).text().trim();
+                                    if (text) return text;
+                                }
+                                return data;
+                            }
+                        }
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    title: function() {
+                        return generateExportTitle();
+                    },
+                    exportOptions: {
+                        columns: ':visible:not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                if ($(node).find('a').length) {
+                                    return $(node).find('a').attr('href'); // ambil URL
+                                } else {
+                                    // Bersihkan HTML → ambil teks saja
+                                    var text = $('<div>').html(data).text().trim();
+                                    return text || '';
+                                }
+                            }
+                        }
+                    },
                     customize: function (doc) {
+                        // Set orientasi dan ukuran halaman
+                        doc.pageSize = 'A4';
+
+                        // Style header tabel
                         doc.styles.tableHeader.alignment = 'center';
+                        doc.styles.tableHeader.fontSize = 10;
+                        doc.defaultStyle.fontSize = 9;
+
+                        // Layout border tabel
                         doc.content[1].layout = {
                             hLineWidth: function(i, node) { return 0.5; },
                             vLineWidth: function(i, node) { return 0.5; },
@@ -270,9 +359,27 @@ $(document).ready(function() {
                             paddingTop: function(i, node) { return 2; },
                             paddingBottom: function(i, node) { return 2; }
                         };
-                        // Hanya kolom "No" (index 0) yang rata tengah
-                        doc.content[1].table.body.forEach(function(row, rowIndex){
-                            if(rowIndex > 0){ // skip header
+
+                        // Atur lebar kolom agar tabel tidak melebar keluar kertas
+                        let colCount = doc.content[1].table.body[0].length;
+                        doc.content[1].table.widths = Array(colCount).fill('*'); // semua kolom fleksibel
+
+                        // Ubah URL jadi "Lihat File" dengan hyperlink aktif
+                        doc.content[1].table.body.forEach(function(row, rowIndex) {
+                            row.forEach(function(cell, colIndex) {
+                                let textcell = cell.text.toString();
+                                if (textcell.startsWith('http')) {
+                                    row[colIndex] = {
+                                        text: 'Lihat File',
+                                        link: textcell,
+                                        color: 'blue',
+                                        decoration: 'underline',
+                                        noWrap: false // izinkan wrap kalau panjang
+                                    };
+                                }
+                            });
+                            // Kolom pertama (No) rata tengah
+                            if (rowIndex > 0) {
                                 row[0].alignment = 'center';
                             }
                         });
@@ -280,18 +387,59 @@ $(document).ready(function() {
                 },
                 {
                     extend: 'print',
-                    exportOptions: { columns: ':visible:not(:last-child)' },
+                    title: function() {
+                        return generateExportTitle();
+                    },
+                    exportOptions: {
+                        columns: ':visible:not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                // Kalau ada <a>, ambil href
+                                if ($(node).find('a').length) {
+                                    return $(node).find('a').attr('href');
+                                } else {
+                                    // Bersihkan HTML → ambil teks saja
+                                    var text = $('<div>').html(data).text().trim();
+                                    return text || data;
+                                }
+                            }
+                        }
+                    },
                     customize: function (win) {
-                        $(win.document.body).find('table')
+                        let $body = $(win.document.body);
+
+                        // Tambahkan CSS khusus print biar tabel nggak overflow
+                        $body.css('font-size', '10pt');
+                        $body.css('margin', '10mm');
+
+                        $body.find('table')
                             .css('border-collapse','collapse')
                             .css('width','100%')
-                            .find('th, td')
+                            .css('table-layout','fixed'); // penting! biar tiap kolom proporsional
+
+                        $body.find('table th, table td')
                             .css('border','1px solid #000')
-                            .css('padding','4px');
-                        // Hanya kolom "No" rata tengah
-                        $(win.document.body).find('table tr').each(function(){
+                            .css('padding','4px')
+                            .css('word-wrap','break-word')   // biar teks panjang patah
+                            .css('white-space','normal');    // jangan paksa satu baris
+
+                        // Kolom No rata tengah
+                        $body.find('table tr').each(function(){
                             $(this).find('td:first, th:first').css('text-align','center');
                         });
+
+                        // Pastikan orientasi landscape (lebih lega)
+                        var css = '@page { size: landscape; margin: 10mm; }';
+                        var head = win.document.head || win.document.getElementsByTagName('head')[0];
+                        var style = win.document.createElement('style');
+                        style.type = 'text/css';
+                        style.media = 'print';
+                        if (style.styleSheet){
+                            style.styleSheet.cssText = css;
+                        } else {
+                            style.appendChild(win.document.createTextNode(css));
+                        }
+                        head.appendChild(style);
                     }
                 },
                 {
@@ -321,6 +469,14 @@ $(document).ready(function() {
         $('#btnPrint').on('click', function(){ table.button('.buttons-print').trigger(); });
 
         /* ================== column visibility ================== */
+        // Sembunyikan langsung kolom Modul Praktikum
+        table.columns().every(function(index){
+            let headerText = $(this.header()).text().trim();
+            if (headerText === "Modul Praktikum") {
+                this.visible(false); // langsung hide kolom
+            }
+        });
+
         // Handle Column visibility dropdown
         $('#btnColvis').on('click', function(e){
             e.preventDefault();
@@ -372,7 +528,13 @@ $(document).ready(function() {
 
             let html = '<ul class="py-2 text-sm text-gray-700">';
             table.columns().every(function(index){
-                if(index === 0 || index === table.columns().count()-1) return; // skip No & Aksi
+                // Skip kolom yang tidak perlu difilter
+                let headerText = $(this.header()).text().trim();
+                if (
+                    index === 0 ||
+                    headerText === "Modul Praktikum" || 
+                    headerText === "Aksi"
+                ) return;
                 const isActive = $(`#filter-col-${index}`).length > 0;
                 html += `
                     <li>
@@ -498,6 +660,7 @@ $(document).ready(function() {
             if (isHidden) menu.classList.remove('hidden');
             else menu.classList.add('hidden');
         };
+        
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.relative.inline-block.text-left')) {
                 document.querySelectorAll('[id^="dropdown-"]').forEach(function(el){

@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => bcrypt('password'),
         ])->assignRole('kalab');
-        
+
         User::create([
             'name' => 'deo',
             'username' => 'deo',

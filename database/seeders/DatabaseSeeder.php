@@ -17,12 +17,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LaboratoriumSeeder::class,
             MataKuliahPraktikumSeeder::class,
-            PertemuanPraktikumSeeder::class,
+            // PertemuanPraktikumSeeder::class,
             KelasSeeder::class,
             SemesterSeeder::class,
             UsersWithRolesAndPermissionsSeeder::class,
-            // PermissionSeeder::class,
-            // RoleSeeder::class,
             UserSeeder::class,
         ]);
     }

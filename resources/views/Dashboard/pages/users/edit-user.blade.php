@@ -34,38 +34,51 @@
         <!-- Nama -->
         <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-            <input type="text" name="name" id="name" required
+            <input type="text" name="name" id="name" required placeholder="Masukkan nama"
                 value="{{ old('name', $user->name) }}"
                 class="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-blue-200 focus:border-blue-500">
+        </div>
+
+        <!-- Username -->
+        <div>
+            <label for="username" class="block text-sm font-semibold text-gray-700 mb-1">Username</label>
+            <input id="username" name="username" type="text"
+                value="{{ old('username', $user->username ?? '') }}"
+                placeholder="Masukkan username" required
+                class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-sm
+                    focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+            />
+            @error('username')
+                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Email -->
         <div>
             <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" name="email" id="email" required
+            <input type="email" name="email" id="email" required placeholder="Masukkan email"
                 value="{{ old('email', $user->email) }}"
                 class="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-blue-200 focus:border-blue-500">
         </div>
 
         <!-- Roles -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Roles</label>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                @forelse ($roles as $role)
-                    <label class="inline-flex items-center gap-2">
-                        <input type="checkbox"
-                            name="roles[]"
-                            value="{{ $role->name }}"
-                            id="role-{{ $role->id }}"
-                            {{ $hasRoles->contains($role->name) ? 'checked' : '' }}
-                            class="rounded border-gray-300 text-blue-600 focus:ring focus:ring-blue-200">
-                        <span class="text-gray-700">{{ $role->name }}</span>
-                    </label>
-                @empty
-                    <p class="text-gray-400 text-sm">Tidak ada role tersedia.</p>
-                @endforelse
-            </div>
+            <label for="roles" class="block text-sm font-semibold text-gray-700 mb-1">Pilih Role</label>
+            <select id="roles" name="roles[]" required
+                class="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-sm
+                    focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition bg-white">
+                @foreach ($roles as $role)
+                    <option value="{{ $role->name }}"
+                        {{ in_array($role->name, old('roles', $hasRoles->pluck('name')->toArray() ?? [])) ? 'selected' : '' }}>
+                        {{ ucfirst($role->name) }}
+                    </option>
+                @endforeach
+            </select>
+            @error('roles')
+                <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+            @enderror
         </div>
+
 
         <!-- Tombol -->
         <div class="flex flex-wrap gap-2">

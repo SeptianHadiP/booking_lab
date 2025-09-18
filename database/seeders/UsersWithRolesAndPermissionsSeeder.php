@@ -121,7 +121,6 @@ class UsersWithRolesAndPermissionsSeeder extends Seeder
             'liat.penjadwalan',
             'ubah.penjadwalan',
             'hapus.penjadwalan',
-            'export.penjadwalan',
 
             //Practice Report management
             'index.laporan-praktek',
@@ -129,7 +128,6 @@ class UsersWithRolesAndPermissionsSeeder extends Seeder
             'liat.laporan-praktek',
             'ubah.laporan-praktek',
             'hapus.laporan-praktek',
-            'export.laporan-praktek',
         ]);
     }
 }

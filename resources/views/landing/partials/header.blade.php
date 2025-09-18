@@ -15,7 +15,7 @@
       <a href="/#about" class="hover:text-yellow-400">About</a>
       <a href="/#how" class="hover:text-yellow-400">How It Works</a>
       <a href="/#benefits" class="hover:text-yellow-400">Benefits</a>
-      <a href="/#schedule" class="hover:text-yellow-400">Schedule</a>
+      <a href="{{ route('jadwal.index') }}" class="hover:text-yellow-400">Schedule</a>
       <a href="/#contact" class="hover:text-yellow-400">Contact</a>
       <a href="{{ route('sertifikat.index') }}" class="hover:text-yellow-400">Sertifikat</a>
     </nav>

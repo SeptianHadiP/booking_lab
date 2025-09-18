@@ -1,21 +1,17 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RolesController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SchedulingsController;
 use App\Http\Controllers\DocumentationController;
-use App\Http\Controllers\UserRoleController;
-use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\SertifikatController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\LaporanPraktikumController;
 use App\Http\Controllers\LandingSertifikatController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SemesterController;
-use app\Http\Controllers\KalabDashboardController;
+use App\Http\Controllers\DashboardController;
 
 
 // Route::get('/dashboard', function () {
@@ -27,31 +23,35 @@ Route::get('/', function () {
     return view('landing.home');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/jadwal', function () {
+    return view('landing.partials.schedule');
+})->name('jadwal.index');
+
+
 
 Route::get('/laprak/{laprak}/certificates', [LaporanPraktikumController::class, 'certificates'])->name('laprak.certificates');
 Route::get('/certificate/result', [SertifikatController::class, 'result'])->name('certificate.result');
 
 Route::prefix('sertifikat')->group(function () {
-    Route::get('/sertifikat', [LandingSertifikatController::class, 'index'])->name('sertifikat.index');
-    Route::get('/sertifikat/filter', [LandingSertifikatController::class, 'filter'])->name('sertifikat.filter');
+    Route::get('/', [LandingSertifikatController::class, 'index'])->name('sertifikat.index');
+    Route::get('/filter', [LandingSertifikatController::class, 'filter'])->name('sertifikat.filter');
 });
+
+// Route::prefix('jadwal')->group(function () {
+//     Route::get('/', [LandingSertifikatController::class, 'index'])->name('jadwal.index');
+//     Route::get('/filter', [LandingSertifikatController::class, 'filter'])->name('jadwal.filter');
+// });
 
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // profile Routes
     Route::prefix('profile')->group(function (){
         Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
-
-    // Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
-    //     Route::get('/kalab', action: [KalabDashboardController::class, 'index'])->name('kalab.dashboard');
-    // });
 
     // schedulings Routes
     Route::prefix('schedulings')->group(function () {
@@ -87,7 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Documentation Routes
-    Route::prefix('documentation')->group(function () {
+    Route::prefix('schedulings/documentation')->group(function () {
         Route::get('/', [DocumentationController::class, 'index'])->name('documentation.index');
         Route::get('/create/{scheduling_id}', [DocumentationController::class, 'create'])->name('documentations.create');
         Route::post('/', [DocumentationController::class, 'store'])->name('documentations.store');
@@ -102,7 +102,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/create/{laprakId}', [SertifikatController::class, 'create'])->name('certificate.create');
         Route::post('/', [SertifikatController::class, 'store'])->name('certificate.store');
     });
-    // Route::get('/', [SertifikatController::class, 'create'])->name('certificate.create');
 
     // Laporan Pratikum Routes
     Route::prefix('laporan-praktikum')->group(function () {
@@ -131,158 +130,3 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Route::redirect('/', '/login');
-// Route::get('/home', function () {
-//     if (session('status')) {
-//         return redirect()->route('admin.home')->with('status', session('status'));
-//     }
-
-//     return redirect()->route('admin.home');
-// });
-
-
-
-// Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'middleware' => ['auth']], function () {
-//     Route::get('/', 'HomeController@index')->name('home');
-//     // Permissions
-//     Route::delete('permissions/destroy', 'PermissionsController@massDestroy')->name('permissions.massDestroy');
-//     Route::resource('permissions', 'PermissionsController');
-
-//     // Roles
-//     Route::delete('roles/destroy', 'RolesController@massDestroy')->name('roles.massDestroy');
-//     Route::resource('roles', 'RolesController');
-
-//     // Users
-//     Route::delete('users/destroy', 'UsersController@massDestroy')->name('users.massDestroy');
-//     Route::resource('users', 'UsersController');
-
-//     // Rooms
-//     Route::delete('rooms/destroy', 'RoomsController@massDestroy')->name('rooms.massDestroy');
-//     Route::resource('rooms', 'RoomsController');
-
-//     // Events
-//     Route::delete('events/destroy', 'EventsController@massDestroy')->name('events.massDestroy');
-//     Route::resource('events', 'EventsController');
-
-//     Route::get('system-calendar', 'SystemCalendarController@index')->name('systemCalendar');
-
-//     Route::get('search-room', 'BookingsController@searchRoom')->name('searchRoom');
-//     Route::post('book-room', 'BookingsController@bookRoom')->name('bookRoom');
-
-//     Route::get('my-credits', 'BalanceController@index')->name('balance.index');
-//     Route::post('add-balance', 'BalanceController@add')->name('balance.add');
-
-//     Route::resource('transactions', 'TransactionsController')->only(['index']);
-// });
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-// Route::get('/users', [UserController::class, 'index'])->middleware(['auth', 'verified'])->name('user.index');
-// Route::get('/user-create', [UserController::class, 'create'])->middleware(['auth', 'verified'])->name('user.create');
-
-
-// Route::prefix('scheduling')->group(function () {
-//     Route::middleware('permission:read scheduling')->get('/', [SchedulingsController::class, 'index'])->name('schedulings.index');
-//     Route::middleware('permission:create scheduling')->get('/create', [SchedulingsController::class, 'create'])->name('schedulings.create');
-//     Route::middleware('permission:create scheduling')->post('/', [SchedulingsController::class, 'store'])->name('schedulings.store');
-//     Route::middleware('permission:read scheduling')->get('/{id}', [SchedulingsController::class, 'show'])->name('schedulings.show');
-//     Route::middleware('permission:update scheduling')->get('/{id}/edit', [SchedulingsController::class, 'edit'])->name('schedulings.edit');
-//     Route::middleware('permission:update scheduling')->put('/{id}', [SchedulingsController::class, 'update'])->name('schedulings.update');
-//     Route::middleware('permission:delete scheduling')->delete('/{id}', [SchedulingsController::class, 'destroy'])->name('schedulings.destroy');
-// });
-
-// Route::middleware('role:kalab')->prefix('user-role')->group(function () {
-//     Route::get('/', [UserRoleController::class, 'index'])->name('user-role.index');
-//     Route::get('/{user}/edit', [UserRoleController::class, 'edit'])->name('user-role.edit');
-//     Route::put('/{user}', [UserRoleController::class, 'update'])->name('user-role.update');
-// });
-
-
-// Route::middleware(['role:kalab'])->prefix('roles')->group(function () {
-//     Route::get('/', [RoleController::class, 'index'])->name('roles.index');
-//     Route::get('/create', [RoleController::class, 'create'])->name('roles.create');
-//     Route::post('/', [RoleController::class, 'store'])->name('roles.store');
-//     Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
-//     Route::put('/{role}', [RoleController::class, 'update'])->name('roles.update');
-//     Route::delete('/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
-// });
-
-
-// Route::middleware(['auth', 'role:kalab'])->prefix('permissions')->group(function () {
-//     Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
-//     Route::get('/create', [PermissionController::class, 'create'])->name('permissions.create');
-//     Route::post('/', [PermissionController::class, 'store'])->name('permissions.store');
-//     Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('permissions.edit');
-//     Route::put('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
-//     Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
-// });
-
-// Route::middleware('role:kalab')->prefix('roles')->group(function () {
-//     Route::get('/', [RoleController::class, 'index'])->name('roles.index');
-//     Route::get('/create', [RoleController::class, 'create'])->name('roles.create');
-//     Route::post('/', [RoleController::class, 'store'])->name('roles.store');
-// });
-
-
-// Route::prefix('roles')->middleware(['auth', 'verified'])->group(function () {
-//     Route::get('/', [RoleController::class, 'index'])->name('roles.index');
-//     Route::get('/create/{scheduling_id}', [RoleController::class, 'create'])->name('roles.create');
-//     Route::post('/', [RoleController::class, 'store'])->name('roles.store');
-//     Route::get('/{id}', [RoleController::class, 'show'])->name('roles.show');
-//     Route::get('/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
-//     Route::put('/{id}', [RoleController::class, 'update'])->name('roles.update');
-//     Route::delete('/{id}', [RoleController::class, 'destroy'])->middleware(['auth', 'verified'])->name('roles.destroy');
-// });
-
-// Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-// Route::get('/role-create', [RoleController::class, 'create'])->name('roles.create');
-
-// Route::middleware(['role:kalab'])->group(function () {
-//     Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-//     Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
-//     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
-//     Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
-// });
-// Route::get('/test', function () {
-//     return 'Test route is working!';
-// })->middleware(['auth', 'verified'])->name('test');
-
-// require __DIR__.'/auth.php';
-
-
-// Only users with 'admin' role
-// Route::middleware(['role:admin'])->group(function () {
-//     Route::get('/admin/dashboard', function () {
-//         return 'Admin Dashboard';
-//     });
-//     Route::get('/admin/users', function () {
-//         return 'Manage Users';
-//     });
-// });
-
-// Only users with 'user' role
-// Route::middleware(['role:user'])->group(function () {
-//     Route::get('/user/dashboard', function () {
-//         return 'User Dashboard';
-//     });
-// });
-
-// Only users with 'edit schedule' permission
-// Route::middleware(['permission:edit schedule'])->group(function () {
-//     Route::get('/schedule/edit', function () {
-//         return 'Edit Schedule';
-//     });
-// });
-
-// Only users with 'view schedule' permission
-// Route::middleware(['permission:view schedule'])->group(function () {
-//     Route::get('/schedule/view', function () {
-//         return 'View Schedule';
-//     });
-// });

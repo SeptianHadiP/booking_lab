@@ -41,18 +41,33 @@ class SertifikatController extends Controller
         $laprak   = LaporanPraktikum::with(['user','mata_kuliah_praktikum','kelas','semester'])
                     ->findOrFail($validated['laprak_id']);
 
-        // Load file excel nilai
-        $excelPath = storage_path('app/public/' . $laprak->nilai_file);
-        if (!file_exists($excelPath)) {
-            return back()->with('error', 'File nilai tidak ditemukan.');
+        // Ambil file excel dari laporan praktikum
+        $nilaiFilePath = $laprak->nilai_file;
+
+        // Pastikan path ada assets/
+        if (!Str::startsWith($nilaiFilePath, 'assets/')) {
+            $nilaiFilePath = 'assets/' . $nilaiFilePath;
+        }
+
+        // $excelPath = public_path($nilaiFilePath);
+
+        $excelPath = Storage::disk('public')->path($laprak->nilai_file);
+
+        if (!$laprak->nilai_file || !Storage::disk('public')->exists($laprak->nilai_file)) {
+            throw new \Exception('File nilai tidak ditemukan: ' . $laprak->nilai_file);
         }
         $rows = Excel::toArray([], $excelPath)[0];
+
+        if (empty($rows) || empty($rows[0])) {
+            throw new \Exception('Data nilai kosong atau tidak valid.');
+        }
 
         // Background image base64
         $bgImagePath = public_path($template->file_path);
         if (!file_exists($bgImagePath)) {
             return back()->with('error', 'Background template tidak ditemukan.');
         }
+
         $bgImageBase64 = 'data:' . mime_content_type($bgImagePath) . ';base64,' . base64_encode(file_get_contents($bgImagePath));
 
         $options = [
@@ -64,25 +79,36 @@ class SertifikatController extends Controller
         $generatedCertificates = [];
 
         // Ambil data untuk folder
-        $tahunAjaran  = Str::slug($laprak->semester->tahun_ajar ?? date('Y'));
+        $tahunAjaran   = Str::slug(str_replace('/', '-', $laprak->semester->tahun_ajar ?? date('Y', strtotime($laprak->semester->start_date))));
         $mataKuliah   = Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
         $kelas        = Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
 
         // Susunan folder
-        $basePath = "generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
+        $basePath = "assets/generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
 
         foreach ($rows as $index => $row) {
             if ($index < 6) continue;
 
             $name   = trim($row[2] ?? '');
-            $score  = trim($row[3] ?? '');
+            $scoreValue = trim($row[3] ?? 0);
+
+            // Konversi angka ke grade
+            if ($scoreValue >= 85) {
+                $grade = 'A';
+            } elseif ($scoreValue >= 70) {
+                $grade = 'B';
+            } elseif ($scoreValue >= 55) {
+                $grade = 'C';
+            } else {
+                $grade = 'D';
+            }
             $course = trim($rows[2][2] ?? 'Telah Mengikuti');
 
             if (!$name) continue;
 
             $viewData = [
                 'name'      => $name,
-                'score'     => $score,
+                'score'     => $grade,
                 'course'    => $course,
                 'bgImage'   => $bgImageBase64,
                 'template'  => $template,
@@ -119,9 +145,6 @@ class SertifikatController extends Controller
             'laprakId' => $laprak->id,
         ])->with('success', 'Sertifikat berhasil dibuat.');
     }
-
-
-
 
     /**
      * Menampilkan hasil sertifikat yang baru dibuat

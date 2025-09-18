@@ -12,15 +12,25 @@ use App\Models\User;
 use App\Notifications\EmailSubmitSchedule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class SchedulingsController extends Controller
 {
+    private function generateModulPath($semester, $lab, $mataKuliah, $tanggal, $waktu)
+    {
+        $tahunAjar   = Str::slug(str_replace('/', '-', $semester->tahun_ajar ?? date('Y', strtotime($semester->start_date))));
+        $namaLab     = Str::slug($lab->nama_ruangan ?? 'lab'); // pakai nama_ruangan biar konsisten
+        $namaMatkul  = Str::slug($mataKuliah->nama_mata_kuliah ?? 'mata-kuliah');
+        preg_match('/\((.*?)\)/', $waktu, $matches);
+        $sesi = isset($matches[1]) ? Str::slug($matches[1]) : Str::slug($waktu);
+
+        return "assets/modul_praktikum/{$tahunAjar}/{$namaLab}/{$namaMatkul}/{$sesi}";
+    }
+
     public function index()
     {
-        $schedules = Schedulings::with(['mata_kuliah_praktikum', 'kelas', 'laboratorium', 'user'])
-            ->latest()
-            ->get();
-
+        $schedules = Schedulings::with('documentation')->get();
         return view('dashboard.pages.schedulings.index', compact('schedules'));
     }
 
@@ -55,10 +65,9 @@ class SchedulingsController extends Controller
             'deskripsi'         => 'required|string',
         ]);
 
-        // Ambil semester aktif berdasarkan tanggal praktikum
         $semester = Semester::where('start_date', '<=', $request->tanggal_praktikum)
-                            ->where('end_date', '>=', $request->tanggal_praktikum)
-                            ->first();
+            ->where('end_date', '>=', $request->tanggal_praktikum)
+            ->first();
 
         if (!$semester) {
             return back()->withErrors([
@@ -66,7 +75,6 @@ class SchedulingsController extends Controller
             ])->withInput();
         }
 
-        // Cek bentrok jadwal (lab, tanggal, waktu)
         $bentrok = Schedulings::where('tanggal_praktikum', $request->tanggal_praktikum)
             ->where('waktu_praktikum', $request->waktu_praktikum)
             ->where('lab_id', $request->lab_id)
@@ -78,25 +86,25 @@ class SchedulingsController extends Controller
             ])->withInput();
         }
 
-        // Upload modul
-        $modulPath = $request->file('modul_praktikum')->store('modul_praktikum', 'public');
+        $lab        = Laboratorium::findOrFail($request->lab_id);
+        $mataKuliah = MataKuliahPraktikum::findOrFail($request->mata_kuliah_id);
 
-      $schedule =   Schedulings::create([
+        $path = $this->generateModulPath($semester, $lab, $mataKuliah, $request->tanggal_praktikum, $request->waktu_praktikum);
+        $modulPath = $request->file('modul_praktikum')->store($path, 'public');
+
+        $schedule = Schedulings::create([
             'user_id'           => Auth::id(),
             'kelas_id'          => $request->kelas_id,
             'mata_kuliah_id'    => $request->mata_kuliah_id,
             'lab_id'            => $request->lab_id,
-            'semester_id'       => $semester->id, // simpan semester aktif
+            'semester_id'       => $semester->id,
             'tanggal_praktikum' => $request->tanggal_praktikum,
             'waktu_praktikum'   => $request->waktu_praktikum,
             'modul_praktikum'   => $modulPath,
             'judul_praktikum'   => $request->judul_praktikum,
             'deskripsi'         => $request->deskripsi,
-        ]); 
-        // User::notify(new EmailSubmitSchedule($schdule));
-        // $user->notify(new EmailSubmitSchedule($schdule));
-        //Auth::user()->notify(new EmailSubmitSchedule($schdule));
-        //    Auth::user()?->notify(new EmailSubmitSchedule($schedule));
+        ]);
+
         return redirect()->route('schedulings.create')->with('success', 'Jadwal berhasil ditambahkan!');
     }
 
@@ -123,10 +131,9 @@ class SchedulingsController extends Controller
             'modul_praktikum'   => 'nullable|mimes:pdf,doc,docx|max:2048',
         ]);
 
-        // Ambil semester aktif sesuai tanggal update
         $semester = Semester::where('start_date', '<=', $request->tanggal_praktikum)
-                            ->where('end_date', '>=', $request->tanggal_praktikum)
-                            ->first();
+            ->where('end_date', '>=', $request->tanggal_praktikum)
+            ->first();
 
         if (!$semester) {
             return back()->withErrors([
@@ -134,7 +141,6 @@ class SchedulingsController extends Controller
             ])->withInput();
         }
 
-        // Cek bentrok jadwal (lab, tanggal, waktu)
         $conflict = Schedulings::where('tanggal_praktikum', $request->tanggal_praktikum)
             ->where('waktu_praktikum', $request->waktu_praktikum)
             ->where('lab_id', $request->lab_id)
@@ -154,20 +160,24 @@ class SchedulingsController extends Controller
             'kelas_id'          => $request->kelas_id,
             'mata_kuliah_id'    => $request->mata_kuliah_id,
             'lab_id'            => $request->lab_id,
-            'semester_id'       => $semester->id, // simpan semester aktif
+            'semester_id'       => $semester->id,
             'tanggal_praktikum' => $request->tanggal_praktikum,
             'waktu_praktikum'   => $request->waktu_praktikum,
             'judul_praktikum'   => $request->judul_praktikum,
             'deskripsi'         => $request->deskripsi,
         ]);
 
-        // File handling
         if ($request->hasFile('modul_praktikum')) {
             if ($schedule->modul_praktikum && Storage::disk('public')->exists($schedule->modul_praktikum)) {
                 Storage::disk('public')->delete($schedule->modul_praktikum);
             }
 
-            $file = $request->file('modul_praktikum')->store('modul_praktikum', 'public');
+            $lab        = Laboratorium::findOrFail($request->lab_id);
+            $mataKuliah = MataKuliahPraktikum::findOrFail($request->mata_kuliah_id);
+
+            $path = $this->generateModulPath($semester, $lab, $mataKuliah, $request->tanggal_praktikum, $request->waktu_praktikum);
+            $file = $request->file('modul_praktikum')->store($path, 'public');
+
             $schedule->modul_praktikum = $file;
             $schedule->save();
         }
@@ -175,16 +185,54 @@ class SchedulingsController extends Controller
         return redirect()->route('schedulings.edit', $id)->with('success', 'Jadwal berhasil diperbarui.');
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
-        $schedule = Schedulings::findOrFail($id);
+        $schedule = Schedulings::with('documentation')->findOrFail($id);
 
-        if ($schedule->modul_praktikum && Storage::disk('public')->exists($schedule->modul_praktikum)) {
-            Storage::disk('public')->delete($schedule->modul_praktikum);
+        // hapus semua dokumentasi & file foto
+        if ($schedule->documentation->count() > 0) {
+            foreach ($schedule->documentation as $doc) {
+                foreach (['foto_1', 'foto_2', 'absen_1', 'absen_2'] as $field) {
+                    if (!empty($doc->$field) && Storage::disk('public')->exists($doc->$field)) {
+                        Storage::disk('public')->delete($doc->$field);
+                    }
+                }
+                $doc->delete();
+            }
+
+            // hapus folder dokumentasi (jika ada)
+            $docFolder = $this->generateDocumentationFolder($schedule);
+            $this->deleteFolderIfExists($docFolder);
         }
 
+        // hapus modul praktikum (jika ada)
+        if (!empty($schedule->modul_praktikum) && Storage::disk('public')->exists($schedule->modul_praktikum)) {
+            Storage::disk('public')->delete($schedule->modul_praktikum);
+            $modulFolder = dirname($schedule->modul_praktikum); // hapus folder tempat modul
+            $this->deleteFolderIfExists($modulFolder);
+        }
+
+        // hapus jadwal
         $schedule->delete();
 
-        return redirect()->route('scheduling.index')->with('success', 'Jadwal berhasil dihapus.');
+        return redirect()->route('scheduling.index')->with('success', 'Data berhasil dihapus!');
+    }
+
+    /**
+     * Generate folder path dokumentasi.
+     */
+    private function generateDocumentationFolder(Schedulings $schedule): string
+    {
+        return 'documentations/' . $schedule->id;
+    }
+
+    /**
+     * Hapus folder jika ada.
+     */
+    private function deleteFolderIfExists(string $folderPath): void
+    {
+        if (Storage::disk('public')->exists($folderPath)) {
+            Storage::disk('public')->deleteDirectory($folderPath);
+        }
     }
 }

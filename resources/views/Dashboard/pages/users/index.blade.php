@@ -9,29 +9,31 @@
             <h2 class="text-xl font-semibold text-gray-900 mb-1">Daftar Pengguna</h2>
             <p class="text-sm text-gray-500">Kelola semua data pengguna aplikasi</p>
         </div>
-        <a href="{{ route('users.create') }}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition">
+        <a href="{{ route('register') }}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition">
             + Tambah User
         </a>
     </div>
 
     <!-- Export & Column Buttons -->
-    <div class="flex flex-wrap gap-2 mb-4">
-        <button id="btnCsv" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">CSV</button>
-        <button id="btnExcel" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Excel</button>
-        <button id="btnPdf" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">PDF</button>
-        <button id="btnPrint" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Print</button>
+    @can('export.pengguna', $users)
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button id="btnCsv" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">CSV</button>
+            <button id="btnExcel" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Excel</button>
+            <button id="btnPdf" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">PDF</button>
+            <button id="btnPrint" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Print</button>
 
-        <!-- Column Visibility Dropdown -->
-        <div class="relative inline-block text-left">
-            <button id="btnColvis" class="flex items-center gap-1 px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
-                Column visibility
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
-            <div id="colvisDropdown" class="hidden absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20"></div>
+            <!-- Column Visibility Dropdown -->
+            <div class="relative inline-block text-left">
+                <button id="btnColvis" class="flex items-center gap-1 px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
+                    Column visibility
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="colvisDropdown" class="hidden absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20"></div>
+            </div>
         </div>
-    </div>
+    @endcan
 
     <!-- Toolbar: Search + Filter + Show Entries -->
     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -39,13 +41,9 @@
         <div class="flex items-center gap-2">
             <!-- Search Box -->
             <div class="relative">
-                <input id="searchBox" type="text" placeholder="Cari laporan..."
-                    class="w-56 pl-10 pr-4 py-2 text-sm text-gray-700 bg-white border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"/>
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"/>
+                <input id="searchBox" type="text" placeholder="Cari laporan..." class="w-56 pl-10 pr-4 py-2 text-sm text-gray-700 bg-white border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"/>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"/>
                 </svg>
             </div>
 
@@ -54,8 +52,7 @@
                 <div class="relative inline-block text-left">
                     <button id="btnFilter" class="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 bg-white border rounded-full shadow-sm hover:bg-gray-50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-.447.894l-4 2.5A1 1 0 019 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-.447.894l-4 2.5A1 1 0 019 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
                         </svg>
                         Filter
                         <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,18 +165,106 @@
 
 <script>userTable
     $(document).ready(function() {
+        function generateExportTitle() {
+            // Judul utama
+            let title = "Laporan Praktikum || LabSchedule";
+
+            // Ambil filter aktif
+            let filterTexts = [];
+            for (let colIndex in activeFilters) {
+                let header = $('#laprakTable thead th').eq(colIndex).text().trim();
+                let value = activeFilters[colIndex];
+                if (value) {
+                    filterTexts.push(header + ": " + value);
+                }
+            }
+
+            // Tambahkan filter di bawah judul
+            if (filterTexts.length > 0) {
+                title += "\n" + filterTexts.join(", ");
+            }
+
+            return title;
+        }
+
         var table = $('#userTable').DataTable({
             dom: 'Brtip',
             paging: true,
             info: true,
             buttons: [
-                { extend: 'csv', exportOptions: { columns: ':visible:not(:last-child)' } },
-                { extend: 'excel', exportOptions: { columns: ':visible:not(:last-child)' } },
                 {
-                    extend: 'pdf',
-                    exportOptions: { columns: ':visible:not(:last-child)' },
+                    extend: 'csvHtml5',
+                    title: function() {
+                        return generateExportTitle();
+                    },
+                    exportOptions: {
+                        columns: ':visible:not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                // kalau ada <a>, ambil href
+                                if ($(node).find('a').length) {
+                                    let url = $(node).find('a').attr('href');
+                                    return url ? 'Lihat File (' + url + ')' : text;
+                                }else{
+                                    // Kalau ada teks, kembalikan teksnya
+                                    var text = $('<div>').html(data).text().trim();
+                                    if (text) return text;
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: function() {
+                        return generateExportTitle();
+                    },
+                    exportOptions: {
+                        columns: ':visible:not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                if ($(node).find('a').length) {
+                                    console.log($(node).find('a').attr('href'))
+                                    return $(node).find('a').attr('href'); // ambil URL aslinya
+                                }else{
+                                    // Kalau ada teks, kembalikan teksnya
+                                    var text = $('<div>').html(data).text().trim();
+                                    if (text) return text;
+                                }
+                                return data;
+                            }
+                        }
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    title: function() {
+                        return generateExportTitle();
+                    },
+                    exportOptions: {
+                        columns: ':visible:not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                if ($(node).find('a').length) {
+                                    return $(node).find('a').attr('href'); // ambil URL
+                                } else {
+                                    // Bersihkan HTML → ambil teks saja
+                                    var text = $('<div>').html(data).text().trim();
+                                    return text || '';
+                                }
+                            }
+                        }
+                    },
                     customize: function (doc) {
+                        // Set orientasi dan ukuran halaman
+                        doc.pageSize = 'A4';
+
+                        // Style header tabel
                         doc.styles.tableHeader.alignment = 'center';
+                        doc.styles.tableHeader.fontSize = 10;
+                        doc.defaultStyle.fontSize = 9;
+
+                        // Layout border tabel
                         doc.content[1].layout = {
                             hLineWidth: function(i, node) { return 0.5; },
                             vLineWidth: function(i, node) { return 0.5; },
@@ -190,9 +275,27 @@
                             paddingTop: function(i, node) { return 2; },
                             paddingBottom: function(i, node) { return 2; }
                         };
-                        // Hanya kolom "No" (index 0) yang rata tengah
-                        doc.content[1].table.body.forEach(function(row, rowIndex){
-                            if(rowIndex > 0){ // skip header
+
+                        // Atur lebar kolom agar tabel tidak melebar keluar kertas
+                        let colCount = doc.content[1].table.body[0].length;
+                        doc.content[1].table.widths = Array(colCount).fill('*'); // semua kolom fleksibel
+
+                        // Ubah URL jadi "Lihat File" dengan hyperlink aktif
+                        doc.content[1].table.body.forEach(function(row, rowIndex) {
+                            row.forEach(function(cell, colIndex) {
+                                let textcell = cell.text.toString();
+                                if (textcell.startsWith('http')) {
+                                    row[colIndex] = {
+                                        text: 'Lihat File',
+                                        link: textcell,
+                                        color: 'blue',
+                                        decoration: 'underline',
+                                        noWrap: false // izinkan wrap kalau panjang
+                                    };
+                                }
+                            });
+                            // Kolom pertama (No) rata tengah
+                            if (rowIndex > 0) {
                                 row[0].alignment = 'center';
                             }
                         });
@@ -200,18 +303,59 @@
                 },
                 {
                     extend: 'print',
-                    exportOptions: { columns: ':visible:not(:last-child)' },
+                    title: function() {
+                        return generateExportTitle();
+                    },
+                    exportOptions: {
+                        columns: ':visible:not(:last-child)',
+                        format: {
+                            body: function (data, row, column, node) {
+                                // Kalau ada <a>, ambil href
+                                if ($(node).find('a').length) {
+                                    return $(node).find('a').attr('href');
+                                } else {
+                                    // Bersihkan HTML → ambil teks saja
+                                    var text = $('<div>').html(data).text().trim();
+                                    return text || data;
+                                }
+                            }
+                        }
+                    },
                     customize: function (win) {
-                        $(win.document.body).find('table')
+                        let $body = $(win.document.body);
+
+                        // Tambahkan CSS khusus print biar tabel nggak overflow
+                        $body.css('font-size', '10pt');
+                        $body.css('margin', '10mm');
+
+                        $body.find('table')
                             .css('border-collapse','collapse')
                             .css('width','100%')
-                            .find('th, td')
+                            .css('table-layout','fixed'); // penting! biar tiap kolom proporsional
+
+                        $body.find('table th, table td')
                             .css('border','1px solid #000')
-                            .css('padding','4px');
-                        // Hanya kolom "No" rata tengah
-                        $(win.document.body).find('table tr').each(function(){
+                            .css('padding','4px')
+                            .css('word-wrap','break-word')   // biar teks panjang patah
+                            .css('white-space','normal');    // jangan paksa satu baris
+
+                        // Kolom No rata tengah
+                        $body.find('table tr').each(function(){
                             $(this).find('td:first, th:first').css('text-align','center');
                         });
+
+                        // Pastikan orientasi landscape (lebih lega)
+                        var css = '@page { size: landscape; margin: 10mm; }';
+                        var head = win.document.head || win.document.getElementsByTagName('head')[0];
+                        var style = win.document.createElement('style');
+                        style.type = 'text/css';
+                        style.media = 'print';
+                        if (style.styleSheet){
+                            style.styleSheet.cssText = css;
+                        } else {
+                            style.appendChild(win.document.createTextNode(css));
+                        }
+                        head.appendChild(style);
                     }
                 },
                 {
@@ -229,7 +373,7 @@
             lengthMenu: [[10,20,50,100],[10,20,50,100]],
             pageLength: 10
         });
-
+        
         // Search & Show Entries
         $('#searchBox').on('input', function() { table.search(this.value).draw(); });
         $('#pageLength').on('change', function() { table.page.len(Number(this.value)).draw(); });

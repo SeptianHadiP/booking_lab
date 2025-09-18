@@ -18,7 +18,7 @@ class Documentation extends Model
         'absen_2',
     ];
 
-    public function schedule()
+    public function scheduling()
     {
         return $this->belongsTo(Schedulings::class, 'scheduling_id');
     }

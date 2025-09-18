@@ -9,38 +9,47 @@ class LandingSertifikatController extends Controller
 {
     public function index()
     {
-        $tahunAjar = Storage::disk('public')->directories('generated_certificates');
-        $tahunAjar = array_map(fn($dir) => basename($dir), $tahunAjar);
+        $tahunAjar = collect(Storage::disk('public')->directories('generated_certificates'))
+            ->map(fn($dir) => basename($dir))
+            ->toArray();
 
-        // siapkan struktur untuk Alpine
+        // Struktur untuk Alpine
         $matkulsByTahun = [];
         $kelasByMatkul  = [];
 
         foreach ($tahunAjar as $tahun) {
-            $matkuls = Storage::disk('public')->directories("generated_certificates/{$tahun}");
-            $matkuls = array_map('basename', $matkuls);
+            $matkuls = collect(Storage::disk('public')->directories("generated_certificates/{$tahun}"))
+                ->map(fn($dir) => basename($dir))
+                ->toArray();
+
             $matkulsByTahun[$tahun] = $matkuls;
 
             foreach ($matkuls as $mk) {
-                $kelas = Storage::disk('public')->directories("generated_certificates/{$tahun}/{$mk}");
-                $kelas = array_map('basename', $kelas);
+                $kelas = collect(Storage::disk('public')->directories("generated_certificates/{$tahun}/{$mk}"))
+                    ->map(fn($dir) => basename($dir))
+                    ->toArray();
+
                 $kelasByMatkul[$tahun][$mk] = $kelas;
             }
         }
 
-        return view('landing.sertifikat', compact('tahunAjar', 'matkulsByTahun', 'kelasByMatkul'));
+        return view('landing.sertifikat', compact(
+            'tahunAjar',
+            'matkulsByTahun',
+            'kelasByMatkul'
+        ));
     }
-
 
     public function filter(Request $request)
     {
-        $tahun   = $request->tahun;
-        $matkul  = $request->matkul;
-        $kelas   = $request->kelas;
+        $tahun  = $request->tahun;
+        $matkul = $request->matkul;
+        $kelas  = $request->kelas;
 
         // Ambil semua tahun ajar untuk dropdown
-        $tahunAjar = Storage::disk('public')->directories('generated_certificates');
-        $tahunAjar = array_map(fn($dir) => basename($dir), $tahunAjar);
+        $tahunAjar = collect(Storage::disk('public')->directories('generated_certificates'))
+            ->map(fn($dir) => basename($dir))
+            ->toArray();
 
         $files = [];
         if ($tahun && $matkul && $kelas) {
@@ -50,6 +59,12 @@ class LandingSertifikatController extends Controller
             }
         }
 
-        return view('landing.sertifikat', compact('tahunAjar', 'tahun', 'matkul', 'kelas', 'files'));
+        return view('landing.sertifikat', compact(
+            'tahunAjar',
+            'tahun',
+            'matkul',
+            'kelas',
+            'files'
+        ));
     }
 }

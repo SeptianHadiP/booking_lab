@@ -10,20 +10,20 @@
     </div>
 
     <ul class="space-y-2">
-    @forelse ($files  as $file)
-        <li class="flex justify-between items-center p-2 border rounded hover:bg-gray-50">
-            <span class="text-gray-800 break-all">{{ $file }}</span>
-            <a href="{{ asset('storage/generated_certificates/' . $file) }}" target="_blank"
-               class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50">
-                🔗 Lihat Sertifikat
-            </a>
-        </li>
-    @empty
-        <li class="text-center text-gray-400 p-2 border rounded">
-            Tidak ada sertifikat yang tersedia.
-        </li>
-    @endforelse
-</ul>
+        @forelse ($files as $file)
+            <li class="flex justify-between items-center p-2 border rounded hover:bg-gray-50">
+                <span class="text-gray-800 break-all">{{ $file }}</span>
+                <a href="{{ asset('storage/' . $file) }}" target="_blank"
+                class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50">
+                    🔗 Lihat Sertifikat
+                </a>
+            </li>
+        @empty
+            <li class="text-center text-gray-400 p-2 border rounded">
+                Tidak ada sertifikat yang tersedia.
+            </li>
+        @endforelse
+    </ul>
 
 
     <div class="text-center mt-6">

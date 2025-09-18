@@ -6,7 +6,7 @@
     <div class="flex items-center justify-between mb-4">
         <div>
             <h2 class="text-lg font-semibold text-gray-800">Laporan Praktikum</h2>
-            <p class="text-sm text-gray-500">Kelola semua laporan praktikum yang telah ditambahkan</p>
+            <p class="text-sm text-gray-500">Daftar laporan praktikum yang sudah diunggah beserta file nilai dan status sertifikatnya.</p>
         </div>
         <x-button.can permission="buat.laporan-praktek">
             <a href="{{ route('laprak.create') }}"
@@ -17,23 +17,25 @@
     </div>
 
     <!-- Export & Column Buttons -->
-    <div class="flex flex-wrap gap-2 mb-4">
-        <button id="btnCsv" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">CSV</button>
-        <button id="btnExcel" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Excel</button>
-        <button id="btnPdf" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">PDF</button>
-        <button id="btnPrint" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Print</button>
+    @can('export.laporan-praktek', $lapraks)
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button id="btnCsv" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">CSV</button>
+            <button id="btnExcel" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Excel</button>
+            <button id="btnPdf" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">PDF</button>
+            <button id="btnPrint" class="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">Print</button>
 
-        <!-- Column Visibility Dropdown -->
-        <div class="relative inline-block text-left">
-            <button id="btnColvis" class="flex items-center gap-1 px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
-                Column visibility
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
-            <div id="colvisDropdown" class="hidden absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20"></div>
+            <!-- Column Visibility Dropdown -->
+            <div class="relative inline-block text-left">
+                <button id="btnColvis" class="flex items-center gap-1 px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md shadow-sm hover:bg-blue-50">
+                    Column visibility
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="colvisDropdown" class="hidden absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20"></div>
+            </div>
         </div>
-    </div>
+    @endcan
 
     <!-- Toolbar: Search + Filter + Show Entries -->
     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -92,7 +94,7 @@
         <thead class="bg-gray-100 text-xs uppercase text-gray-700 tracking-wide shadow-sm">
             <tr>
                 <th class="px-4 py-3 text-center border">No</th>
-                <th class="px-4 py-3 text-center border">Nama Pengunggah</th>
+                <th class="px-4 py-3 text-center border">Nama</th>
                 <th class="px-4 py-3 text-center border">Mata Kuliah</th>
                 <th class="px-4 py-3 text-center border">Kelas</th>
                 <th class="px-4 py-3 text-center border">Tahun Ajaran</th>
@@ -122,11 +124,11 @@
                 </td>
                 <td class="px-4 py-3 text-center border">
                     @php
-                        $tahunAjaran = \Illuminate\Support\Str::slug($laprak->semester->tahun_ajar ?? date('Y'));
-                        $mataKuliah  = \Illuminate\Support\Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
-                        $kelas       = \Illuminate\Support\Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
+                        $tahunAjaran   = Str::slug(str_replace('/', '-', $laprak->semester->tahun_ajar ?? date('Y', strtotime($laprak->semester->start_date))));
+                        $mataKuliah   = Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
+                        $kelas        = Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
 
-                        $basePath = "generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
+                        $basePath = "assets/generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
                         $hasCertificates = \Illuminate\Support\Facades\Storage::disk('public')->exists($basePath)
                             && count(\Illuminate\Support\Facades\Storage::disk('public')->files($basePath)) > 0;
                     @endphp
@@ -148,26 +150,42 @@
                         </button>
                         <div id="dropdown-{{ $laprak->id }}" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 z-20">
                             <ul class="py-1 text-sm text-gray-700 divide-y divide-gray-100">
+                                @can('lihat.laporan-praktek', $laprak)
                                 <li>
                                     <a href="{{ route('laprak.show', $laprak->id) }}" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
                                         <i class="bi bi-eye text-blue-500"></i> Lihat
                                     </a>
                                 </li>
-                                @can('edit laprak', $laprak)
+                                @endcan
+                                @can('ubah.laporan-praktek', $laprak)
                                 <li>
                                     <a href="{{ route('laprak.edit', $laprak->id) }}" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
                                         <i class="bi bi-pencil text-yellow-500"></i> Edit laporan
                                     </a>
                                 </li>
                                 @endcan
-                                @hasPermission('create laprak')
-                                <li>
-                                    <a href="{{ route('certificate.create', $laprak->id) }}" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
-                                        <i class="bi bi-pencil text-yellow-500"></i> Create Sertifikat
-                                    </a>
-                                </li>
-                                @endhasPermission
-                                @hasPermission('delete laprak')
+                                @can('buat.sertifikat', $laprak)
+                                    @php
+                                        $tahunAjaran = \Illuminate\Support\Str::slug($laprak->semester->tahun_ajar ?? date('Y'));
+                                        $mataKuliah  = \Illuminate\Support\Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
+                                        $kelas       = \Illuminate\Support\Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
+
+                                        $basePath = "assets/generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
+                                        $certificateFiles = \Illuminate\Support\Facades\Storage::disk('public')->files($basePath);
+                                        $hasCertificates = count($certificateFiles) > 0;
+                                    @endphp
+
+                                    @if($hasCertificates)
+                                    @elseif (!$laprak->sertifikat)
+                                        <li>
+                                            <a href="{{ route('certificate.create', $laprak->id) }}"
+                                            class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
+                                                <i class="bi bi-pencil-square text-yellow-500"></i> Create Sertifikat
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endcan
+                                @can('hapus.laporan-praktek', $laprak)
                                 <li>
                                     <form action="{{ route('laprak.destroy', $laprak->id) }}" method="POST" onsubmit="return confirm('Yakin hapus data ini?');">
                                         @csrf
@@ -177,7 +195,7 @@
                                         </button>
                                     </form>
                                 </li>
-                                @endhasPermission
+                                @endcan
                             </ul>
                         </div>
                     </div>
@@ -211,33 +229,71 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
+        function generateExportTitle() {
+            // Judul utama
+            let title = "Laporan Praktikum || LabSchedule";
+
+            // Ambil filter aktif
+            let filterTexts = [];
+            for (let colIndex in activeFilters) {
+                let header = $('#laprakTable thead th').eq(colIndex).text().trim();
+                let value = activeFilters[colIndex];
+                if (value) {
+                    filterTexts.push(header + ": " + value);
+                }
+            }
+
+            // Tambahkan filter di bawah judul
+            if (filterTexts.length > 0) {
+                title += "\n" + filterTexts.join(", ");
+            }
+
+            return title;
+        }
+
         var table = $('#laprakTable').DataTable({
             dom: 'Brtip',
             paging: true,
             info: true,
             buttons: [
                 {
-                    extend: 'csv',
+                    extend: 'csvHtml5',
+                    title: function() {
+                        return generateExportTitle();
+                    },
                     exportOptions: {
                         columns: ':visible:not(:last-child)',
                         format: {
                             body: function (data, row, column, node) {
-                                if ($(node).find('a').length || (typeof data === 'string' && data.startsWith('http'))) {
-                                    return 'Lihat File';
+                                // kalau ada <a>, ambil href
+                                if ($(node).find('a').length) {
+                                    let url = $(node).find('a').attr('href');
+                                    return url ? 'Lihat File (' + url + ')' : text;
+                                }else{
+                                    // Kalau ada teks, kembalikan teksnya
+                                    var text = $('<div>').html(data).text().trim();
+                                    if (text) return text;
                                 }
-                                return data;
                             }
                         }
                     }
                 },
                 {
                     extend: 'excel',
+                    title: function() {
+                        return generateExportTitle();
+                    },
                     exportOptions: {
                         columns: ':visible:not(:last-child)',
                         format: {
                             body: function (data, row, column, node) {
-                                if ($(node).find('a').length || (typeof data === 'string' && data.startsWith('http'))) {
-                                    return 'Lihat File';
+                                if ($(node).find('a').length) {
+                                    console.log($(node).find('a').attr('href'))
+                                    return $(node).find('a').attr('href'); // ambil URL aslinya
+                                }else{
+                                    // Kalau ada teks, kembalikan teksnya
+                                    var text = $('<div>').html(data).text().trim();
+                                    if (text) return text;
                                 }
                                 return data;
                             }
@@ -245,23 +301,34 @@
                     }
                 },
                 {
-                    extend: 'pdf',
+                    extend: 'pdfHtml5',
+                    title: function() {
+                        return generateExportTitle();
+                    },
                     exportOptions: {
                         columns: ':visible:not(:last-child)',
                         format: {
                             body: function (data, row, column, node) {
                                 if ($(node).find('a').length) {
-                                    return $(node).find('a').attr('href'); // ambil URL aslinya
+                                    return $(node).find('a').attr('href'); // ambil URL
+                                } else {
+                                    // Bersihkan HTML → ambil teks saja
+                                    var text = $('<div>').html(data).text().trim();
+                                    return text || '';
                                 }
-                                if (typeof data === 'string' && data.startsWith('http')) {
-                                    return data;
-                                }
-                                return data;
                             }
                         }
                     },
                     customize: function (doc) {
+                        // Set orientasi dan ukuran halaman
+                        doc.pageSize = 'A4';
+
+                        // Style header tabel
                         doc.styles.tableHeader.alignment = 'center';
+                        doc.styles.tableHeader.fontSize = 10;
+                        doc.defaultStyle.fontSize = 9;
+
+                        // Layout border tabel
                         doc.content[1].layout = {
                             hLineWidth: function(i, node) { return 0.5; },
                             vLineWidth: function(i, node) { return 0.5; },
@@ -273,19 +340,26 @@
                             paddingBottom: function(i, node) { return 2; }
                         };
 
-                        // Ubah URL jadi link "Lihat File"
-                        doc.content[1].table.body.forEach(function(row, rowIndex){
-                            row.forEach(function(cell, colIndex){
-                                if (typeof cell === 'string' && cell.startsWith('http')) {
+                        // Atur lebar kolom agar tabel tidak melebar keluar kertas
+                        let colCount = doc.content[1].table.body[0].length;
+                        doc.content[1].table.widths = Array(colCount).fill('*'); // semua kolom fleksibel
+
+                        // Ubah URL jadi "Lihat File" dengan hyperlink aktif
+                        doc.content[1].table.body.forEach(function(row, rowIndex) {
+                            row.forEach(function(cell, colIndex) {
+                                let textcell = cell.text.toString();
+                                if (textcell.startsWith('http')) {
                                     row[colIndex] = {
                                         text: 'Lihat File',
-                                        link: cell,
+                                        link: textcell,
                                         color: 'blue',
-                                        decoration: 'underline'
+                                        decoration: 'underline',
+                                        noWrap: false // izinkan wrap kalau panjang
                                     };
                                 }
                             });
-                            if(rowIndex > 0){
+                            // Kolom pertama (No) rata tengah
+                            if (rowIndex > 0) {
                                 row[0].alignment = 'center';
                             }
                         });
@@ -293,40 +367,59 @@
                 },
                 {
                     extend: 'print',
+                    title: function() {
+                        return generateExportTitle();
+                    },
                     exportOptions: {
                         columns: ':visible:not(:last-child)',
                         format: {
                             body: function (data, row, column, node) {
+                                // Kalau ada <a>, ambil href
                                 if ($(node).find('a').length) {
-                                    return $(node).find('a').attr('href'); // kirim URL
+                                    return $(node).find('a').attr('href');
+                                } else {
+                                    // Bersihkan HTML → ambil teks saja
+                                    var text = $('<div>').html(data).text().trim();
+                                    return text || data;
                                 }
-                                if (typeof data === 'string' && data.startsWith('http')) {
-                                    return data;
-                                }
-                                return data;
                             }
                         }
                     },
                     customize: function (win) {
-                        $(win.document.body).find('table')
+                        let $body = $(win.document.body);
+
+                        // Tambahkan CSS khusus print biar tabel nggak overflow
+                        $body.css('font-size', '10pt');
+                        $body.css('margin', '10mm');
+
+                        $body.find('table')
                             .css('border-collapse','collapse')
                             .css('width','100%')
-                            .find('th, td')
-                            .css('border','1px solid #000')
-                            .css('padding','4px');
+                            .css('table-layout','fixed'); // penting! biar tiap kolom proporsional
 
-                        // Kolom "No" rata tengah
-                        $(win.document.body).find('table tr').each(function(){
+                        $body.find('table th, table td')
+                            .css('border','1px solid #000')
+                            .css('padding','4px')
+                            .css('word-wrap','break-word')   // biar teks panjang patah
+                            .css('white-space','normal');    // jangan paksa satu baris
+
+                        // Kolom No rata tengah
+                        $body.find('table tr').each(function(){
                             $(this).find('td:first, th:first').css('text-align','center');
                         });
 
-                        // Ganti URL panjang jadi link singkat
-                        $(win.document.body).find('td').each(function(){
-                            var text = $(this).text();
-                            if (text.startsWith('http')) {
-                                $(this).html('<a href="' + text + '" target="_blank">Lihat File</a>');
-                            }
-                        });
+                        // Pastikan orientasi landscape (lebih lega)
+                        var css = '@page { size: landscape; margin: 10mm; }';
+                        var head = win.document.head || win.document.getElementsByTagName('head')[0];
+                        var style = win.document.createElement('style');
+                        style.type = 'text/css';
+                        style.media = 'print';
+                        if (style.styleSheet){
+                            style.styleSheet.cssText = css;
+                        } else {
+                            style.appendChild(win.document.createTextNode(css));
+                        }
+                        head.appendChild(style);
                     }
                 },
                 {
@@ -356,6 +449,14 @@
         $('#btnPrint').on('click', function(){ table.button('.buttons-print').trigger(); });
 
         /* ================== column visibility ================== */
+        // Sembunyikan langsung kolom Modul Praktikum
+        table.columns().every(function(index){
+            let headerText = $(this.header()).text().trim();
+            if (headerText === "File Laporan" || headerText === "File Nilai") {
+                this.visible(false); // langsung hide kolom
+            }
+        });
+
         // Handle Column visibility dropdown
         $('#btnColvis').on('click', function(e){
             e.preventDefault();
@@ -407,13 +508,22 @@
 
             let html = '<ul class="py-2 text-sm text-gray-700">';
             table.columns().every(function(index){
-                if(index === 0 || index === table.columns().count()-1) return; // skip No & Aksi
+                // Skip kolom yang tidak perlu difilter
+                let headerText = $(this.header()).text().trim();
+                if (
+                    index === 0 ||                                  // kolom No
+                    headerText === "File Laporan" ||
+                    headerText === "File Nilai" ||
+                    headerText === "Status Sertifikasi" ||
+                    headerText === "Aksi"
+                ) return;
+
                 const isActive = $(`#filter-col-${index}`).length > 0;
                 html += `
                     <li>
                         <button data-col="${index}"
                             class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-100 transition rounded">
-                            <span>${$(this.header()).text()}</span>
+                            <span>${headerText}</span>
                             ${isActive
                                 ? '<svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>'
                                 : '<span class="w-4 h-4"></span>'}

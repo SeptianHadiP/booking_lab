@@ -57,4 +57,10 @@ class User extends Authenticatable implements MustVerifyEmail
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\CustomVerifyEmail);
+    }
+
 }

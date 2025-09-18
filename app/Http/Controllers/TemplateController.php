@@ -10,6 +10,35 @@ use App\Models\CertificateTemplate;
 
 class TemplateController extends Controller
 {
+    /**
+     * Generate dan simpan file template ke folder public/templates
+     */
+    private function generateFilePath($file, $templateName = null): ?string
+    {
+        if (!$file) {
+            return null;
+        }
+
+        // Gunakan nama template jika ada, kalau tidak pakai timestamp
+        $folderName = $templateName ? Str::slug($templateName) : time();
+
+        // Buat folder jika belum ada
+        $pathFolder = public_path("assets/templates-sertifikat/{$folderName}");
+        if (!is_dir($pathFolder)) {
+            mkdir($pathFolder, 0755, true);
+        }
+
+        // Buat nama file unik: timestamp + nama asli yang di-slug
+        $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
+                  . '.' . $file->getClientOriginalExtension();
+
+        // Pindahkan file ke folder yang sudah dibuat
+        $file->move($pathFolder, $fileName);
+
+        // Return path relatif untuk disimpan di database
+        return "assets/templates-sertifikat/{$folderName}/{$fileName}";
+    }
+
     public function index()
     {
         $templates = CertificateTemplate::latest()->get();
@@ -18,7 +47,7 @@ class TemplateController extends Controller
 
     public function templateForm()
     {
-        return view('dashboard/pages/template/create-template');
+        return view('dashboard.pages.template.create-template');
     }
 
     public function storeTemplate(Request $request)
@@ -26,19 +55,13 @@ class TemplateController extends Controller
         Log::info('Mulai menyimpan template ke database', $request->all());
 
         try {
-            $templateFileName = null;
+            $filePath = $request->hasFile('template_file')
+                ? $this->generateFilePath($request->file('template_file'), $request->name)
+                : null;
 
-            // Simpan file template background (ke public/templates)
-            if ($request->hasFile('template_file')) {
-                $templateFile = $request->file('template_file');
-                $templateFileName = time() . '_' . Str::slug(pathinfo($templateFile->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $templateFile->getClientOriginalExtension();
-                $templateFile->move(public_path('templates'), $templateFileName);
-            }
-
-            // Simpan ke database
             $template = CertificateTemplate::create([
                 'name'          => $request->name ?? 'Template ' . now()->format('Ymd_His'),
-                'file_path'     => $templateFileName ? 'templates/' . $templateFileName : null,
+                'file_path'     => $filePath,
                 'font_color'    => $request->font_color,
                 'name_x_type'   => $request->name_x_type,
                 'name_x'        => $request->name_x,
@@ -55,12 +78,13 @@ class TemplateController extends Controller
             ]);
 
             Log::info('Berhasil menyimpan template ke database', ['template_id' => $template->id]);
-            return redirect()->back()->with('success', 'Template berhasil disimpan!');
+            return redirect()->route('template.index')->with('success', 'Template berhasil diperbarui!');
         } catch (\Exception $e) {
-            Log::error('Gagal menyimpan template ke database: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Gagal menyimpan template!');
+            Log::error('Gagal update template: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal update template!');
         }
     }
+
     public function edit($id)
     {
         $template = CertificateTemplate::findOrFail($id);
@@ -72,25 +96,21 @@ class TemplateController extends Controller
         $template = CertificateTemplate::findOrFail($id);
 
         try {
-            $templateFileName = $template->file_path; // default: pakai file lama
+            $filePath = $template->file_path; // default pakai file lama
 
-            // Jika user upload file baru
             if ($request->hasFile('template_file')) {
-                // Hapus file lama kalau ada
+                // Hapus file lama jika ada
                 if ($template->file_path && file_exists(public_path($template->file_path))) {
                     unlink(public_path($template->file_path));
                 }
 
                 // Simpan file baru
-                $templateFile = $request->file('template_file');
-                $templateFileName = 'templates/' . time() . '_' . Str::slug(pathinfo($templateFile->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $templateFile->getClientOriginalExtension();
-                $templateFile->move(public_path('templates'), basename($templateFileName));
+                $filePath = $this->generateFilePath($request->file('template_file'), $request->name ?? $template->name);
             }
 
-            // Update data
             $template->update([
                 'name'          => $request->name ?? $template->name,
-                'file_path'     => $templateFileName,
+                'file_path'     => $filePath,
                 'font_color'    => $request->font_color,
                 'name_x_type'   => $request->name_x_type,
                 'name_x'        => $request->name_x,
@@ -118,9 +138,23 @@ class TemplateController extends Controller
         try {
             $template = CertificateTemplate::findOrFail($id);
 
-            // Hapus file fisik jika ada
-            if ($template->file_path && file_exists(public_path($template->file_path))) {
-                unlink(public_path($template->file_path));
+            if ($template->file_path) {
+                $fullPath = public_path($template->file_path);
+
+                // Hapus file jika ada
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
+
+                // Hapus folder jika kosong
+                $folderPath = dirname($fullPath);
+                if (is_dir($folderPath)) {
+                    // Periksa apakah folder kosong
+                    $files = array_diff(scandir($folderPath), ['.', '..']);
+                    if (empty($files)) {
+                        rmdir($folderPath);
+                    }
+                }
             }
 
             $template->delete();
@@ -131,5 +165,4 @@ class TemplateController extends Controller
             return redirect()->back()->with('error', 'Gagal menghapus template!');
         }
     }
-
 }
