@@ -1,14 +1,31 @@
+<!-- resources/views/dashboard/pages/schedulings/update-scheduling.blade.php -->
 @extends('dashboard.layouts.app')
 
 @section('content')
-<div class="bg-white shadow rounded p-4">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+<div class="bg-white shadow rounded-lg p-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-6">
         <div>
-            <h2 class="h4 fw-semibold text-dark mb-1">Edit Jadwal</h2>
-            <p class="text-muted small mb-0">Perbarui jadwal praktikum yang telah dibuat</p>
+            <h2 class="text-xl font-semibold text-gray-800 mb-1">Edit Jadwal</h2>
+            <p class="text-sm text-gray-500">Perbarui jadwal praktikum yang telah dibuat</p>
         </div>
     </div>
 
+    {{-- SweetAlert auto success --}}
+    @if (session('success') && session('alert_type') == 'auto')
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session("success") }}',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        </script>
+    @endif
+
+    {{-- Form edit --}}
     @include('dashboard.pages.forms.schedulings-form', ['schedule' => $schedule])
 </div>
 @endsection
@@ -23,23 +40,30 @@
             title: 'Berhasil!',
             text: '{{ session("success") }}',
             showCancelButton: true,
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Tetap di Halaman Ini',
+            confirmButtonText: 'Kembali ke Daftar',
+            cancelButtonText: 'Tetap di Form',
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = "{{ route('scheduling.index') }}";
             }
         });
     </script>
-@endif
-
-@if ($errors->has('tanggal_praktikum'))
+@elseif ($errors->has('tanggal_praktikum'))
     <script>
         Swal.fire({
-            icon: 'error',
+            icon: 'warning',
             title: 'Jadwal Bentrok',
             text: '{{ $errors->first("tanggal_praktikum") }}',
             confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session("error") }}',
+            confirmButtonText: 'Coba Lagi'
         });
     </script>
 @endif

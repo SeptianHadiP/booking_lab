@@ -14,16 +14,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RolePermissionSeeder::class);
-        // User::factory(10)->create();
-
-        // ...existing code...
-        $this->call(UsersWithRolesAndPermissionsSeeder::class);
-        // ...existing code...
-        // User::factory()->create([
-        //     'username' => 'testuser',
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        //]);
+        $this->call([
+            LaboratoriumSeeder::class,
+            MataKuliahPraktikumSeeder::class,
+            // PertemuanPraktikumSeeder::class,
+            KelasSeeder::class,
+            SemesterSeeder::class,
+            UsersWithRolesAndPermissionsSeeder::class,
+            UserSeeder::class,
+        ]);
     }
 }

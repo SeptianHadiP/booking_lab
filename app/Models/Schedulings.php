@@ -4,24 +4,58 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
 class Schedulings extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'nama_dosen',
-        'kelas',
-        'mata_kuliah',
+        'user_id',
+        'kelas_id',
+        'mata_kuliah_id',
+        'lab_id',
+        'semester_id',
         'tanggal_praktikum',
         'waktu_praktikum',
         'modul_praktikum',
-        'tools_software',
+        'judul_praktikum',
+        'deskripsi',
     ];
 
-    // app/Models/Schedulings.php
+    // Relasi ke User (Dosen)
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relasi ke Dokumentasi
     public function documentation()
     {
-        return $this->hasOne(Documentation::class, 'scheduling_id');
+        return $this->hasMany(Documentation::class, 'scheduling_id');
+    }
+
+    // Relasi ke Kelas
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id');
+    }
+
+    // Relasi ke Mata Kuliah
+    public function mata_kuliah_praktikum()
+    {
+        return $this->belongsTo(MataKuliahPraktikum::class, 'mata_kuliah_id');
+    }
+
+    // Relasi ke Laboratorium
+    public function laboratorium()
+    {
+        return $this->belongsTo(Laboratorium::class, 'lab_id');
+    }
+
+    // Relasi ke Semester
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class, 'semester_id', 'id');
     }
 }

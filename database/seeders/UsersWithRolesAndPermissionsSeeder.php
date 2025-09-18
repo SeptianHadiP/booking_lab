@@ -11,43 +11,123 @@ class UsersWithRolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create permissions
+        // Buat Permission
         $permissions = [
-            'view schedule',
-            'edit schedule',
-            'delete schedule',
-            'manage users',
+            // User management
+            'index.pengguna',
+            'buat.pengguna',
+            'liat.pengguna',
+            'ubah.pengguna',
+            'hapus.pengguna',
+            'export.pengguna',
+
+            // Scheduling management
+            'index.penjadwalan',
+            'buat.penjadwalan',
+            'liat.penjadwalan',
+            'ubah.penjadwalan',
+            'hapus.penjadwalan',
+            'export.penjadwalan',
+
+            // Documentation management
+            'buat.dokumentasi',
+            'liat.dokumentasi',
+            'ubah.dokumentasi',
+            'hapus.dokumentasi',
+            'export.dokumentasi',
+
+            // Role management
+            'index.peran',
+            'buat.peran',
+            'liat.peran',
+            'ubah.peran',
+            'hapus.peran',
+            'export.peran',
+
+            //Practice Report management
+            'index.laporan-praktek',
+            'buat.laporan-praktek',
+            'liat.laporan-praktek',
+            'ubah.laporan-praktek',
+            'hapus.laporan-praktek',
+            'export.laporan-praktek',
+
+            //certificate management
+            'index.sertifikat',
+            'buat.sertifikat',
+            'liat.sertifikat',
+            'ubah.sertifikat',
+            'hapus.sertifikat',
+            'export.sertifikat',
+
+            // template management
+            'index.templat',
+            'buat.templat',
+            'liat.templat',
+            'ubah.templat',
+            'hapus.templat',
+            'export.templat',
         ];
-        foreach ($permissions as $perm) {
-            Permission::firstOrCreate(['name' => $perm]);
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Create roles and assign permissions
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $adminRole->givePermissionTo(Permission::all());
+        // Role Ketua Lab
+        $kalab = Role::firstOrCreate(['name' => 'kalab']);
+        $kalab->syncPermissions(Permission::all());
 
-        $userRole = Role::firstOrCreate(['name' => 'user']);
-        $userRole->givePermissionTo(['view schedule']);
+        // Role Asisten Lab
+        $aslab = Role::firstOrCreate(['name' => 'aslab']);
+        $aslab->syncPermissions([
+            // Scheduling management
+            'index.penjadwalan',
+            'buat.penjadwalan',
+            'liat.penjadwalan',
+            'ubah.penjadwalan',
+            'hapus.penjadwalan',
+            'export.penjadwalan',
 
-        // Create users and assign roles
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin User',
-                'username' => 'admin',
-                'password' => bcrypt('password'),
-            ]
-        );
-        $admin->assignRole($adminRole);
+            // Documentation management
+            'buat.dokumentasi',
+            'liat.dokumentasi',
+            'ubah.dokumentasi',
+            'hapus.dokumentasi',
+            'export.dokumentasi',
 
-        $user = User::firstOrCreate(
-            ['email' => 'user@example.com'],
-            [
-                'name' => 'Regular User',
-                'username' => 'user',
-                'password' => bcrypt('password'),
-            ]
-        );
-        $user->assignRole($userRole);
+            //certificate management
+            'index.sertifikat',
+            'buat.sertifikat',
+            'liat.sertifikat',
+            'ubah.sertifikat',
+            'hapus.sertifikat',
+            'export.sertifikat',
+
+            // template management
+            'index.templat',
+            'buat.templat',
+            'liat.templat',
+            'ubah.templat',
+            'hapus.templat',
+            'export.templat',
+        ]);
+
+        // Role Dosen
+        $dosen = Role::firstOrCreate(['name' => 'dosen']);
+        $dosen->syncPermissions([
+            // Scheduling management
+            'index.penjadwalan',
+            'buat.penjadwalan',
+            'liat.penjadwalan',
+            'ubah.penjadwalan',
+            'hapus.penjadwalan',
+
+            //Practice Report management
+            'index.laporan-praktek',
+            'buat.laporan-praktek',
+            'liat.laporan-praktek',
+            'ubah.laporan-praktek',
+            'hapus.laporan-praktek',
+        ]);
     }
 }

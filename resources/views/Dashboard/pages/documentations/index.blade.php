@@ -2,11 +2,12 @@
 
 @section('content')
 <div class="bg-white shadow rounded p-4">
-
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h2 class="h4 fw-semibold text-dark mb-3">Daftar Jadwal & Dokumentasi</h2>
-        <p class="text-muted mb-4">Berikut adalah daftar jadwal praktikum beserta status dokumentasinya.</p>
+    <div class="flex flex-wrap items-start justify-between gap-2 mb-6">
+        <div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-1">Daftar Jadwal & Dokumentasi</h2>
+            <p class="text-sm text-gray-500">Berikut adalah daftar jadwal praktikum beserta status dokumentasinya.</p>
+        </div>
     </div>
 
     <!-- Notifikasi -->
@@ -16,13 +17,14 @@
 
     <!-- Include Tabel -->
     @include('components.documentation-table', ['schedules' => $schedules])
-
 </div>
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    $(document).ready(function () {
+    document.addEventListener('DOMContentLoaded', () => {
         $('#scheduleTable').DataTable({
             responsive: true,
             autoWidth: false,
@@ -63,4 +65,15 @@
         });
     }
 </script>
+
+@if (session('error'))
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Validasi Gagal',
+        html: `{!! implode('<br>', $errors->all()) !!}`,
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
 @endpush

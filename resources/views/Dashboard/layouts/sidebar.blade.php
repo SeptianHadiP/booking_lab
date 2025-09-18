@@ -1,49 +1,75 @@
-<!-- resources/views/components/layout3/sidebar.blade.php -->
-<div id="sidebar" class="bg-white border-end shadow-sm position-fixed h-100" style="width: 250px;">
-    <div class="text-center py-4 border-bottom">
-        <img src="https://ubharajaya.ac.id/wp-content/uploads/2022/07/ubj_nama-copy.png" width="150" alt="">
-        <!-- <h4 class="text-primary fw-bold mb-0">
-            <i class="bi bi-building-fill me-2"></i>Hotel
-        </h4> -->
-    </div>
-    <ul class="nav flex-column px-3 pt-3">
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('dashboard') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('dashboard')}}">
-                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+<!-- resources/views/dashboard/layouts/sidebar.blade.php -->
+<div class="h-full flex flex-col">
+    <!-- Navigation -->
+    <ul class="flex flex-col px-3 pt-4 flex-1 overflow-y-auto space-y-1">
+        @php
+            $linkBase = 'flex items-center px-3 py-2 rounded transition';
+            $active   = 'bg-blue-500 text-white';
+            $inactive = 'text-gray-800 hover:bg-blue-100';
+        @endphp
+
+        <!-- Dashboard -->
+        <li>
+            <a href="{{ route('dashboard') }}"
+               class="{{ $linkBase }} {{ request()->is('dashboard') ? $active : $inactive }}">
+                <i class="bi bi-speedometer2 mr-2 text-lg"></i>
+                <span>Dashboard</span>
             </a>
         </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('schedulings') || request()->is('create-schedulings') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('scheduling.index')}}"><i class="bi bi-journal-bookmark-fill me-2"></i>schedulings</a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('users') || request()->is('user-create') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('user.index')}}">
-                <i class="bi bi-person-fill me-2"></i>Users
-            </a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-door-closed-fill me-2"></i>Rooms</a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('roles') || request()->is('create-role') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('roles.index')}}">
-                <i class="bi bi-people-fill me-2"></i>Roles
-            </a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-calendar3 me-2"></i>Calendar</a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center {{ request()->is('documentation') || request()->is('create-documentation') ? 'active bg-primary text-white rounded' : 'text-dark' }}" href="{{route('documentation.index')}}">
-                <i class="bi bi-clipboard-data-fill me-2"></i>Dokumentasi
-            </a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Sheet Report</a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-cash-stack me-2"></i>Billing</a>
-        </li>
-        <li class="nav-item mb-1">
-            <a class="nav-link d-flex align-items-center text-dark" href="#"><i class="bi bi-receipt-cutoff me-2"></i>Bill Info</a>
-        </li>
+
+        <!-- Penjadwalan -->
+        <x-button.can permission="index.penjadwalan">
+            <li>
+                <a href="{{ route('scheduling.index') }}"
+                   class="{{ $linkBase }} {{ request()->is('schedulings*') ? $active : $inactive }}">
+                    <i class="bi bi-calendar-event-fill mr-2 text-lg"></i>
+                    <span>Penjadwalan</span>
+                </a>
+            </li>
+        </x-button.can>
+
+        <!-- Laporan Praktikum -->
+        <x-button.can permission="index.laporan-praktek">
+            <li>
+                <a href="{{ route('laprak.index') }}"
+                   class="{{ $linkBase }} {{ request()->is('laporan-praktikum*') ? $active : $inactive }}">
+                    <i class="bi bi-file-earmark-text-fill mr-2 text-lg"></i>
+                    <span>Laporan Praktikum</span>
+                </a>
+            </li>
+        </x-button.can>
+
+        <!-- Template Sertifikat -->
+        <x-button.can permission="index.templat">
+            <li>
+                <a href="{{ route('template.index') }}"
+                   class="{{ $linkBase }} {{ request()->is('template*') ? $active : $inactive }}">
+                    <i class="bi bi-file-medical-fill mr-2 text-lg"></i>
+                    <span>Template Sertifikat</span>
+                </a>
+            </li>
+        </x-button.can>
+
+        <!-- Pengguna -->
+        <x-button.can permission="index.pengguna">
+            <li>
+                <a href="{{ route('users.index') }}"
+                   class="{{ $linkBase }} {{ request()->is('users*') ? $active : $inactive }}">
+                    <i class="bi bi-person-fill mr-2 text-lg"></i>
+                    <span>Pengguna</span>
+                </a>
+            </li>
+        </x-button.can>
+
+        <!-- Peran -->
+        <x-button.can permission="index.peran">
+            <li>
+                <a href="{{ route('roles.index') }}"
+                   class="{{ $linkBase }} {{ request()->is('roles*') ? $active : $inactive }}">
+                    <i class="bi bi-people-fill mr-2 text-lg"></i>
+                    <span>Peran</span>
+                </a>
+            </li>
+        </x-button.can>
     </ul>
 </div>

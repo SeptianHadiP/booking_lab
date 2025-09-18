@@ -1,139 +1,132 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RolesController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SchedulingsController;
 use App\Http\Controllers\DocumentationController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\SertifikatController;
+use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\LaporanPraktikumController;
+use App\Http\Controllers\LandingSertifikatController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 
-// Route::redirect('/', '/login');
-// Route::get('/home', function () {
-//     if (session('status')) {
-//         return redirect()->route('admin.home')->with('status', session('status'));
-//     }
-
-//     return redirect()->route('admin.home');
-// });
-
-
-
-// Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'middleware' => ['auth']], function () {
-//     Route::get('/', 'HomeController@index')->name('home');
-//     // Permissions
-//     Route::delete('permissions/destroy', 'PermissionsController@massDestroy')->name('permissions.massDestroy');
-//     Route::resource('permissions', 'PermissionsController');
-
-//     // Roles
-//     Route::delete('roles/destroy', 'RolesController@massDestroy')->name('roles.massDestroy');
-//     Route::resource('roles', 'RolesController');
-
-//     // Users
-//     Route::delete('users/destroy', 'UsersController@massDestroy')->name('users.massDestroy');
-//     Route::resource('users', 'UsersController');
-
-//     // Rooms
-//     Route::delete('rooms/destroy', 'RoomsController@massDestroy')->name('rooms.massDestroy');
-//     Route::resource('rooms', 'RoomsController');
-
-//     // Events
-//     Route::delete('events/destroy', 'EventsController@massDestroy')->name('events.massDestroy');
-//     Route::resource('events', 'EventsController');
-
-//     Route::get('system-calendar', 'SystemCalendarController@index')->name('systemCalendar');
-
-//     Route::get('search-room', 'BookingsController@searchRoom')->name('searchRoom');
-//     Route::post('book-room', 'BookingsController@bookRoom')->name('bookRoom');
-
-//     Route::get('my-credits', 'BalanceController@index')->name('balance.index');
-//     Route::post('add-balance', 'BalanceController@add')->name('balance.add');
-
-//     Route::resource('transactions', 'TransactionsController')->only(['index']);
-// });
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-Route::get('/', function () {
-    return view('ledingweb');
-});
 
 // Route::get('/dashboard', function () {
 //     return view('rapihin.dashboard2');
 // })->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/dashboard', function () {
-    return view('dashboard.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/roles', [RolesController::class, 'index'])->middleware(['auth', 'verified'])->name('roles.index');
-Route::get('/role-create', [RolesController::class, 'create'])->middleware(['auth', 'verified'])->name('roles.create');
+// Route::get('/kalab', action: [KalabDashboardController::class, 'index'])->name('kalab.dashboard');
 
-Route::get('/users', [UserController::class, 'index'])->middleware(['auth', 'verified'])->name('user.index');
-Route::get('/user-create', [UserController::class, 'create'])->middleware(['auth', 'verified'])->name('user.create');
-
-// scheduling Routes
-Route::prefix('scheduling')->group(function () {
-    Route::get('/', [SchedulingsController::class, 'index'])->middleware(['auth', 'verified'])->name('scheduling.index');
-    Route::get('/create', [SchedulingsController::class, 'create'])->middleware(['auth', 'verified'])->name('schedulings.create');
-    Route::post('/', [SchedulingsController::class, 'store'])->middleware(['auth', 'verified'])->name('schedulings.store');
-    Route::get('/{id}', [SchedulingsController::class, 'show'])->middleware(['auth', 'verified'])->name('schedulings.show');
-    Route::get('/{id}/edit', [SchedulingsController::class, 'edit'])->middleware(['auth', 'verified'])->name('schedulings.edit'); // untuk tampilkan form edit
-    Route::put('/{id}', [SchedulingsController::class, 'update'])->middleware(['auth', 'verified'])->name('schedulings.update');  // untuk simpan hasil edit
-    Route::delete('/{id}', [SchedulingsController::class, 'destroy'])->middleware(['auth', 'verified'])->name('schedulings.destroy');
+Route::get('/', function () {
+    return view('landing.home');
 });
 
-// Documentation Routes
-Route::prefix('documentation')->group(function () {
-    Route::get('/', [DocumentationController::class, 'index'])->middleware(['auth', 'verified'])->name('documentation.index');
-    Route::get('/create/{scheduling_id}', [DocumentationController::class, 'create'])->middleware(['auth', 'verified'])->name('documentations.create');
-    Route::post('/', [DocumentationController::class, 'store'])->middleware(['auth', 'verified'])->name('documentations.store');
-    Route::get('/{id}', [DocumentationController::class, 'show'])->middleware(['auth', 'verified'])->name('documentations.show');
-    Route::get('/{id}/edit', [DocumentationController::class, 'edit'])->middleware(['auth', 'verified'])->name('documentations.edit');
-    Route::put('/{id}', [DocumentationController::class, 'update'])->middleware(['auth', 'verified'])->name('documentations.update');
-    Route::delete('/{id}', [DocumentationController::class, 'destroy'])->middleware(['auth', 'verified'])->name('documentations.destroy');
+Route::get('/jadwal', function () {
+    return view('landing.partials.schedule');
+})->name('jadwal.index');
+
+
+
+Route::get('/laprak/{laprak}/certificates', [LaporanPraktikumController::class, 'certificates'])->name('laprak.certificates');
+Route::get('/certificate/result', [SertifikatController::class, 'result'])->name('certificate.result');
+
+Route::prefix('sertifikat')->group(function () {
+    Route::get('/', [LandingSertifikatController::class, 'index'])->name('sertifikat.index');
+    Route::get('/filter', [LandingSertifikatController::class, 'filter'])->name('sertifikat.filter');
 });
 
+// Route::prefix('jadwal')->group(function () {
+//     Route::get('/', [LandingSertifikatController::class, 'index'])->name('jadwal.index');
+//     Route::get('/filter', [LandingSertifikatController::class, 'filter'])->name('jadwal.filter');
+// });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // profile Routes
+    Route::prefix('profile')->group(function (){
+        Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
+
+    // schedulings Routes
+    Route::prefix('schedulings')->group(function () {
+        Route::get('/', [SchedulingsController::class, 'index'])->name('scheduling.index');
+        Route::get('/create', [SchedulingsController::class, 'create'])->name('schedulings.create');
+        Route::post('/', [SchedulingsController::class, 'store'])->name('schedulings.store');
+        Route::get('/{id}', [SchedulingsController::class, 'show'])->name('schedulings.show');
+        Route::get('/{id}/edit', [SchedulingsController::class, 'edit'])->name('schedulings.edit'); // untuk tampilkan form edit
+        Route::put('/{id}', [SchedulingsController::class, 'update'])->name('schedulings.update');  // untuk simpan hasil edit
+        Route::delete('/{id}', [SchedulingsController::class, 'destroy'])->name('schedulings.destroy');
+    });
+
+    // Roles Routes
+    Route::prefix('roles')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('roles.index');
+        Route::get('/create', [RoleController::class, 'create'])->name('roles.create');
+        Route::post('/', [RoleController::class, 'store'])->name('roles.store');
+        Route::get('/{id}', [RoleController::class, 'show'])->name('roles.show');
+        Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+        Route::put('/{role}', [RoleController::class, 'update'])->name('roles.update');
+        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
+    });
+
+    // Users Routes
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('users.index');
+        Route::get('/create', [RegisteredUserController::class, 'create'])->name('users.create');
+        Route::post('/create', [RegisteredUserController::class, 'store'])->name('users.store');
+        Route::get('/{id}', [UserController::class, 'show'])->name('users.show');
+        Route::get('/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
+
+    // Documentation Routes
+    Route::prefix('schedulings/documentation')->group(function () {
+        Route::get('/', [DocumentationController::class, 'index'])->name('documentation.index');
+        Route::get('/create/{scheduling_id}', [DocumentationController::class, 'create'])->name('documentations.create');
+        Route::post('/', [DocumentationController::class, 'store'])->name('documentations.store');
+        Route::get('/{id}', [DocumentationController::class, 'show'])->name('documentations.show');
+        Route::get('/{id}/edit', [DocumentationController::class, 'edit'])->name('documentations.edit');
+        Route::put('/{id}', [DocumentationController::class, 'update'])->name('documentations.update');
+        Route::delete('/{id}', [DocumentationController::class, 'destroy'])->name('documentations.destroy');
+    });
+
+    // Certificate Routes
+    Route::prefix('certificate')->group(function () {
+        Route::get('/create/{laprakId}', [SertifikatController::class, 'create'])->name('certificate.create');
+        Route::post('/', [SertifikatController::class, 'store'])->name('certificate.store');
+    });
+
+    // Laporan Pratikum Routes
+    Route::prefix('laporan-praktikum')->group(function () {
+        Route::get('/', [LaporanPraktikumController::class, 'index'])->name('laprak.index');
+        Route::get('/create', [LaporanPraktikumController::class, 'create'])->name('laprak.create');
+        Route::post('/', [LaporanPraktikumController::class, 'store'])->name('laprak.store');
+        Route::get('/{id}', [LaporanPraktikumController::class, 'show'])->name('laprak.show');
+        Route::get('/{id}/edit', [LaporanPraktikumController::class, 'edit'])->name('laprak.edit');
+        Route::put('/{id}', [LaporanPraktikumController::class, 'update'])->name('laprak.update');
+        Route::delete('/{id}', [LaporanPraktikumController::class, 'destroy'])->name('laprak.destroy');
+    });
+
+    // Template Sertifikat Routes
+    Route::prefix('template')->group(function () {
+        Route::get('/', [TemplateController::class, 'index'])->name('template.index');
+        Route::get('/create', [TemplateController::class, 'templateForm'])->name('template.create');
+        Route::post('/store', [TemplateController::class, 'storeTemplate'])->name('template.store');
+        Route::get('/{id}', [TemplateController::class, 'show'])->name('template.show');
+        Route::get('/{id}/edit', [TemplateController::class, 'edit'])->name('template.edit');
+        Route::put('/{id}', [TemplateController::class, 'update'])->name('template.update');
+        Route::delete('/{id}', [TemplateController::class, 'destroy'])->name('template.destroy');
+    });
+
 });
 
-Route::get('/test', function () {
-    return 'Test route is working!';
-})->middleware(['auth', 'verified'])->name('test');
 
 require __DIR__.'/auth.php';
 
-
-// Only users with 'admin' role
-Route::middleware(['role:admin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return 'Admin Dashboard';
-    });
-    Route::get('/admin/users', function () {
-        return 'Manage Users';
-    });
-});
-
-// Only users with 'user' role
-Route::middleware(['role:user'])->group(function () {
-    Route::get('/user/dashboard', function () {
-        return 'User Dashboard';
-    });
-});
-
-// Only users with 'edit schedule' permission
-Route::middleware(['permission:edit schedule'])->group(function () {
-    Route::get('/schedule/edit', function () {
-        return 'Edit Schedule';
-    });
-});
-
-// Only users with 'view schedule' permission
-Route::middleware(['permission:view schedule'])->group(function () {
-    Route::get('/schedule/view', function () {
-        return 'View Schedule';
-    });
-});

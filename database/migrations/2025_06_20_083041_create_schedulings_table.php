@@ -6,30 +6,37 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('schedulings', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_dosen');
-            $table->string('kelas');
-            $table->string('mata_kuliah');
+
+            // Relasi ke user (dosen)
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            $table->unsignedBigInteger('kelas_id')->nullable();
+            $table->unsignedBigInteger('mata_kuliah_id')->nullable();
+            $table->unsignedBigInteger('lab_id')->nullable();
+
+            // Relasi ke semester
+            $table->unsignedBigInteger('semester_id')->nullable();
+            // after('lab_id');
+            // jika ingin menambahkan foreign key
+            // $table->foreign('semester_id')->references('id')->on('semesters')->onDelete('cascade');
+
+            // Hapus kolom nama_dosen
             $table->date('tanggal_praktikum');
             $table->string('waktu_praktikum');
             $table->string('modul_praktikum')->nullable(); // simpan path file
-            $table->text('tools_software');
+            $table->string('judul_praktikum')->nullable();
+            $table->text('deskripsi');
             $table->timestamps();
 
-            // Tambahkan constraint unique gabungan di bawah ini
-            $table->unique(['tanggal_praktikum', 'waktu_praktikum']);
+            // Constraint unique gabungan
+            $table->unique(['tanggal_praktikum', 'waktu_praktikum', 'lab_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('schedulings');
