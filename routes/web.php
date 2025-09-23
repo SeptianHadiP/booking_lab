@@ -48,10 +48,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // profile Routes
     Route::prefix('profile')->group(function (){
-        Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/update', [ProfileController::class, 'update'])->name('profile.update');
+        Route::put('/security', [ProfileController::class, 'updateSecurity'])->name('profile.updateSecurity');
+        Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.updatePhoto');
+        Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.deletePhoto');
     });
+
+    // Route::put('/email', [ProfileController::class, 'updateEmail'])->name('profile.updateEmail');
+    // Route::put('/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
+        // Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // schedulings Routes
     Route::prefix('schedulings')->group(function () {
@@ -78,8 +84,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Users Routes
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
-        Route::get('/create', [RegisteredUserController::class, 'create'])->name('users.create');
-        Route::post('/create', [RegisteredUserController::class, 'store'])->name('users.store');
         Route::get('/{id}', [UserController::class, 'show'])->name('users.show');
         Route::get('/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/{id}', [UserController::class, 'update'])->name('users.update');

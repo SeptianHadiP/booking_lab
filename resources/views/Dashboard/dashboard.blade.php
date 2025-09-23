@@ -6,7 +6,7 @@
 <div class="p-6 space-y-6">
 
     <!-- Statistik Utama -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <div class="bg-white p-4 rounded-lg shadow text-center">
             <h3 class="text-sm text-gray-500">Total Jadwal Semester Ini</h3>
             <p class="text-2xl font-bold text-blue-600">{{ $schedules->count() }}</p>
@@ -39,82 +39,86 @@
         </div>
     </div>
 
-
     <!-- 2 Kolom Utama -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Kolom Kiri -->
-        <div class="lg:col-span-2 space-y-6">
-            
+        <div class="md:col-span-2 space-y-6">
+
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <!-- Progress Praktikum per Kelas -->
-                <div class="bg-white p-6 rounded-lg shadow">
+                <div class="bg-white p-6 rounded-lg shadow overflow-x-auto">
                     <h3 class="text-base font-semibold text-gray-700 mb-4">
                         Progress Praktikum per Kelas (Semester {{ $semesterAktif->tahun_ajar ?? '-' }})
                     </h3>
-                    <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="px-4 py-2 text-left">Kelas</th>
-                                <th class="px-4 py-2 text-left">Dosen</th>
-                                <th class="px-4 py-2 text-center">Tempat Lab</th>
-                                <th class="px-4 py-2 text-center">Dokumentasi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($schedulesBelum as $schedule)
-                            <tr class="border-t">
-                                <td class="px-4 py-2">{{ $schedule->kelas->nama_kelas ?? '-' }}</td>
-                                <td class="px-4 py-2">{{ $schedule->user->name ?? '-' }}</td>
-                                <td class="px-4 py-2 text-center">{{ $schedule->laboratorium->nama_ruangan ?? '-' }}</td>
-                                <td class="px-4 py-2 text-center">
-                                    <span class="px-2 py-1 text-xs bg-orange-100 text-orange-600 rounded">Belum</span>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr><td colspan="4" class="px-4 py-3 text-center text-gray-500">Semua sudah selesai</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Kelas</th>
+                                    <th class="px-4 py-2 text-left">Dosen</th>
+                                    <th class="px-4 py-2 text-center">Tempat Lab</th>
+                                    <th class="px-4 py-2 text-center">Dokumentasi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($schedulesBelum as $schedule)
+                                <tr class="border-t">
+                                    <td class="px-4 py-2">{{ $schedule->kelas->nama_kelas ?? '-' }}</td>
+                                    <td class="px-4 py-2">{{ $schedule->user->name ?? '-' }}</td>
+                                    <td class="px-4 py-2 text-center">{{ $schedule->laboratorium->nama_ruangan ?? '-' }}</td>
+                                    <td class="px-4 py-2 text-center">
+                                        <span class="px-2 py-1 text-xs bg-orange-100 text-orange-600 rounded">Belum</span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="px-4 py-3 text-center text-gray-500">Semua sudah selesai</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Progress Laporan Praktikum per Kelas -->
-                <div class="bg-white p-6 rounded-lg shadow">
+                <div class="bg-white p-6 rounded-lg shadow overflow-x-auto">
                     <h3 class="text-base font-semibold text-gray-700 mb-4">
                         Progress Laporan Praktikum per Kelas (Semester {{ $semesterAktif->tahun_ajar ?? '-' }})
                     </h3>
-                    <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="px-4 py-2 text-left">Kelas</th>
-                                <th class="px-4 py-2 text-left">Dosen</th>
-                                <th class="px-4 py-2 text-center">File Nilai (Excel)</th>
-                                <th class="px-4 py-2 text-center">Sertifikat</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($lapraksBelum as $laprak)
-                            <tr class="border-t">
-                                <td class="px-4 py-2">{{ $laprak->kelas->nama_kelas ?? '-' }}</td>
-                                <td class="px-4 py-2">{{ $laprak->user->name ?? '-' }}</td>
-                                <td class="px-4 py-2 text-center">
-                                    @if(!$laprak->nilai_file)
-                                        <span class="px-2 py-1 text-xs bg-orange-100 text-orange-600 rounded">Belum</span>
-                                    @else
-                                        <a href="{{ asset('storage/'.$laprak->nilai_file) }}" 
-                                        class="text-blue-600 hover:underline" target="_blank">
-                                        Lihat File
-                                        </a>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-2 text-center">
-                                    <span class="px-2 py-1 text-xs bg-gray-200 text-gray-500 rounded">Belum</span>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr><td colspan="4" class="px-4 py-3 text-center text-gray-500">Semua sudah selesai</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Kelas</th>
+                                    <th class="px-4 py-2 text-left">Dosen</th>
+                                    <th class="px-4 py-2 text-center">File Nilai (Excel)</th>
+                                    <th class="px-4 py-2 text-center">Sertifikat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($lapraksBelum as $laprak)
+                                <tr class="border-t">
+                                    <td class="px-4 py-2">{{ $laprak->kelas->nama_kelas ?? '-' }}</td>
+                                    <td class="px-4 py-2">{{ $laprak->user->name ?? '-' }}</td>
+                                    <td class="px-4 py-2 text-center">
+                                        @if(!$laprak->nilai_file)
+                                            <span class="px-2 py-1 text-xs bg-orange-100 text-orange-600 rounded">Belum</span>
+                                        @else
+                                            <a href="{{ asset('storage/'.$laprak->nilai_file) }}" class="text-blue-600 hover:underline" target="_blank">Lihat File</a>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2 text-center">
+                                        <span class="px-2 py-1 text-xs bg-gray-200 text-gray-500 rounded">Belum</span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="px-4 py-3 text-center text-gray-500">Semua sudah selesai</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -133,7 +137,7 @@
                 <h2 class="text-lg font-semibold mb-3">Penjadwalan Lab</h2>
 
                 <!-- Show Entries -->
-                <div class="flex items-center gap-2 mb-5">
+                <div class="flex flex-wrap items-center gap-2 mb-5">
                     <label class="text-sm text-gray-600">Tampilkan</label>
                     <select id="pageLength" class="px-2 py-1 text-sm border rounded">
                         <option value="10">10</option>
@@ -143,58 +147,42 @@
                     </select>
                     <span class="text-sm text-gray-600">data</span>
                 </div>
-                
-                <table id="schedulesTable" class="w-full text-sm text-gray-700 border-collapse">
-                    <thead class="bg-gray-100 text-xs uppercase text-gray-700 tracking-wide shadow-sm">
-                        <tr>
-                            <th class="px-4 py-3 text-center border">No</th>
-                            <th class="px-4 py-3 text-center border">Nama</th>
-                            <th class="px-4 py-3 text-center border">Mata Kuliah</th>
-                            <th class="px-4 py-3 text-center border">Kelas</th>
-                            <th class="px-4 py-3 text-center border">Lab</th>
-                            <th class="px-4 py-3 text-center border">Tahun Ajaran</th>
-                            <th class="px-4 py-3 text-center border">Tanggal</th>
-                            <th class="px-4 py-3 text-center border">Jam</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @forelse ($schedules as $schedule)
-                        <tr class="even:bg-gray-50 hover:bg-blue-50 transition-colors">
-                            <td class="px-4 py-3 text-center font-medium text-gray-600 border">
-                                {{ $loop->iteration }}
-                            </td>
-                            <td class="px-4 py-3 font-medium border">
-                                {{ $schedule->user->name ?? '-' }}
-                            </td>
-                            <td class="px-4 py-3 text-gray-600 border">
-                                {{ $schedule->mata_kuliah_praktikum->nama_mata_kuliah ?? '-' }}
-                            </td>
-                            <td class="px-4 py-3 text-gray-600 border">
-                                {{ $schedule->kelas->nama_kelas ?? '-' }}
-                            </td>
-                            <td class="px-4 py-3 text-gray-600 border">
-                                {{ $schedule->laboratorium->nama_ruangan ?? '-' }}
-                            </td>
-                            <td class="px-4 py-3 text-left border">
-                                {{ $schedule->semester->tahun_ajar ?? '-' }}
-                            </td>
-                            <td class="px-4 py-3 text-left border">
-                                {{ \Carbon\Carbon::parse($schedule->tanggal_praktikum)->format('d M Y') }}
-                            </td>
-                            <td class="px-4 py-3 text-left border">
-                                {{ $schedule->waktu_praktikum }}
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="9" class="text-center text-gray-500 py-6 italic border">
-                                Belum ada data jadwal.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                
+
+                <div class="overflow-x-auto">
+                    <table id="schedulesTable" class="min-w-full text-sm text-gray-700 border-collapse">
+                        <thead class="bg-gray-100 text-xs uppercase text-gray-700 tracking-wide shadow-sm">
+                            <tr>
+                                <th class="px-4 py-3 text-center border">No</th>
+                                <th class="px-4 py-3 text-center border">Nama</th>
+                                <th class="px-4 py-3 text-center border">Mata Kuliah</th>
+                                <th class="px-4 py-3 text-center border">Kelas</th>
+                                <th class="px-4 py-3 text-center border">Lab</th>
+                                <th class="px-4 py-3 text-center border">Tahun Ajaran</th>
+                                <th class="px-4 py-3 text-center border">Tanggal</th>
+                                <th class="px-4 py-3 text-center border">Jam</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @forelse ($schedules as $schedule)
+                            <tr class="even:bg-gray-50 hover:bg-blue-50 transition-colors">
+                                <td class="px-4 py-3 text-center font-medium text-gray-600 border">{{ $loop->iteration }}</td>
+                                <td class="px-4 py-3 font-medium border">{{ $schedule->user->name ?? '-' }}</td>
+                                <td class="px-4 py-3 text-gray-600 border">{{ $schedule->mata_kuliah_praktikum->nama_mata_kuliah ?? '-' }}</td>
+                                <td class="px-4 py-3 text-gray-600 border">{{ $schedule->kelas->nama_kelas ?? '-' }}</td>
+                                <td class="px-4 py-3 text-gray-600 border">{{ $schedule->laboratorium->nama_ruangan ?? '-' }}</td>
+                                <td class="px-4 py-3 text-left border">{{ $schedule->semester->tahun_ajar ?? '-' }}</td>
+                                <td class="px-4 py-3 text-left border">{{ \Carbon\Carbon::parse($schedule->tanggal_praktikum)->format('d M Y') }}</td>
+                                <td class="px-4 py-3 text-left border">{{ $schedule->waktu_praktikum }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="9" class="text-center text-gray-500 py-6 italic border">Belum ada data jadwal.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
                 <!-- Footer Custom Pagination -->
                 <div class="flex flex-col items-center justify-between gap-2 mt-4 md:flex-row">
                     <p id="customInfo" class="text-sm text-gray-500"></p>
@@ -207,7 +195,7 @@
         <div class="space-y-6">
             <!-- Judul dan Tombol Kontrol Kalender -->
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <div class="flex flex-wrap justify-between items-center mb-4">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
                     <div class="flex items-center space-x-2">
                         <button id="prevBtn" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">‹</button>
                         <button id="nextBtn" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">›</button>
@@ -215,7 +203,7 @@
                     </div>
                     <!-- Judul Dinamis Bulan & Tahun -->
                     <h2 id="calendarTitle" class="text-xl font-bold text-gray-800"></h2>
-                    <div class="flex space-x-2">
+                    <div class="flex flex-wrap space-x-2">
                         <button data-view="dayGridMonth" class="viewBtn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Bulan</button>
                         <button data-view="timeGridWeek" class="viewBtn px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Minggu</button>
                         <button data-view="timeGridDay" class="viewBtn px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Hari</button>
@@ -224,33 +212,27 @@
                 </div>
 
                 <!-- Kalender -->
-                <div id="calendar" class="border border-gray-200 rounded-lg shadow-inner"></div>
+                <div id="calendar" class="border border-gray-200 rounded-lg shadow-inner w-full"></div>
             </div>
 
             <!-- Legend -->
-            <div class="flex space-x-4 text-sm items-center">
-                <div class="flex items-center space-x-1">
-                    <span class="w-3 h-3 bg-blue-500 rounded-full"></span><span>Lab Software</span>
-                </div>
-                <div class="flex items-center space-x-1">
-                    <span class="w-3 h-3 bg-green-500 rounded-full"></span><span>Lab Cyber</span>
-                </div>
-                <div class="flex items-center space-x-1">
-                    <span class="w-3 h-3 bg-red-500 rounded-full"></span><span>Lab Data Science</span>
-                </div>
+            <div class="flex flex-wrap space-x-4 text-sm items-center">
+                <div class="flex items-center space-x-1"><span class="w-3 h-3 bg-blue-500 rounded-full"></span><span>Lab Software</span></div>
+                <div class="flex items-center space-x-1"><span class="w-3 h-3 bg-green-500 rounded-full"></span><span>Lab Cyber</span></div>
+                <div class="flex items-center space-x-1"><span class="w-3 h-3 bg-red-500 rounded-full"></span><span>Lab Data Science</span></div>
             </div>
-
 
             <!-- Grafik -->
             <div class="bg-white p-4 rounded-lg shadow">
                 <h2 class="text-lg font-semibold mb-3">Grafik Ringkas</h2>
-                <canvas id="chartLabUsage" class="mb-6"></canvas>
-                <canvas id="chartStatus"></canvas>
+                <canvas id="chartLabUsage" class="w-full mb-6"></canvas>
+                <canvas id="chartStatus" class="w-full"></canvas>
             </div>
         </div>
     </div>
 </div>
 @endsection
+
 
 @push('scripts')
 
@@ -327,7 +309,7 @@
         });
     });
 
-    
+
     // === Chart 1: Pemakaian Lab per Ruang (Bar Chart) ===
 new Chart(document.getElementById('chartLabUsage'), {
     type: 'bar',

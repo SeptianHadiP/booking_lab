@@ -3,14 +3,13 @@
     <!-- Kiri: Hamburger + Logo -->
     <div class="flex items-center gap-4">
         <!-- Toggle Sidebar -->
-        <div>
-            <input id="sidebarToggle" type="checkbox" class="hidden peer">
-            <label for="sidebarToggle" class="relative block w-6 h-6 cursor-pointer">
-                <span class="absolute top-1 w-[22px] h-[3px] bg-violet-600 rounded transition-all duration-300 peer-checked:rotate-[35deg] peer-checked:scale-x-55 peer-checked:translate-x-[13px] peer-checked:-translate-y-[2px]"></span>
-                <span class="absolute top-1/2 w-[22px] h-[3px] bg-violet-600 rounded -translate-y-1/2 transition-all duration-300 peer-checked:w-[18px]"></span>
-                <span class="absolute bottom-1 w-[22px] h-[3px] bg-violet-600 rounded transition-all duration-300 peer-checked:rotate-[-35deg] peer-checked:scale-x-55 peer-checked:translate-x-[13px] peer-checked:translate-y-[2px]"></span>
-            </label>
-        </div>
+        <input type="checkbox" class="check" id="sidebarToggle" />
+        <label for="sidebarToggle" class="hamburger-button">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </label>
+
 
         <!-- Logo -->
         <a href="/" class="flex items-center">
@@ -20,14 +19,21 @@
     </div>
 
     <!-- Tengah: Search -->
-    <div class="flex-1 max-w-md mx-4">
+    <div class="flex-1 max-w-md mx-4 hidden sm:block">
         <div class="relative">
             <input type="text" placeholder="Search here..."
-                   class="w-full border border-gray-300 rounded-full pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"/>
+                class="w-full border border-gray-300 rounded-full pl-10 pr-4 py-2
+                        focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"/>
             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <i class="bi bi-search"></i>
             </span>
         </div>
+    </div>
+    <!-- Versi mobile: hanya ikon search -->
+    <div class="sm:hidden">
+        <button class="p-2 rounded-full hover:bg-gray-100">
+            <i class="bi bi-search text-lg text-gray-600"></i>
+        </button>
     </div>
 
     <!-- Kanan: User Dropdown -->
@@ -36,7 +42,12 @@
         <button id="userDropdown"
                 class="flex items-center bg-white rounded-full shadow px-3 py-1 space-x-2 hover:shadow-md transition"
                 type="button">
-            <img class="w-8 h-8 rounded-full ring-1 ring-gray-300" src="https://i.pravatar.cc/150?img=3" alt="Avatar">
+            <div @click="open = true" class="cursor-pointer">
+                <img id="profileImage"
+                    class="w-8 h-8 rounded-full ring-1 ring-gray-300"
+                    src="{{ auth()->user()->profile ? asset('storage/' . auth()->user()->profile) : 'https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png' }}"
+                    alt="profile photo">
+            </div>
             <span class="font-medium text-gray-700">{{ Auth::user()->name }}</span>
             <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd"
@@ -64,6 +75,73 @@
     </div>
     @endauth
 </nav>
+
+<style>
+    .check {
+        display: none;
+    }
+
+    .hamburger-button {
+        position: relative;
+        display: inline-block;
+        width: 28px;   /* lebih kecil */
+        height: 20px;  /* lebih kecil */
+        cursor: pointer;
+    }
+
+    .hamburger-button div {
+        width: 28px;
+        height: 3px;
+        background-color: #2563eb; /* biru */
+        border-radius: 3px;
+        position: absolute;
+        transition: 0.4s;
+    }
+
+    .line1 { top: 0; }
+    .line2 { top: calc(50% - 1.5px); } /* tengah */
+    .line3 { bottom: 0; }
+
+    .hamburger-button:hover div {
+        width: 20px;
+    }
+
+    .check:checked ~ .hamburger-button:hover .line1 {
+        transform: translate(8px, 5px) rotate(20deg);
+        border-radius: 7px;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+    .check:checked ~ .hamburger-button:hover .line2 {
+        margin-left: -5px;
+    }
+
+    .check:checked ~ .hamburger-button:hover .line3 {
+        transform: translate(8px, -5px) rotate(-20deg);
+        border-radius: 7px;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+    .hamburger-button:hover .line1 {
+        transform: translate(0, 5px) rotate(-20deg);
+        border-radius: 7px;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+
+    .hamburger-button:hover .line2{
+        margin-left: 12px;
+    }
+
+    .hamburger-button:hover .line3 {
+        transform: translate(0, -5px) rotate(20deg);
+        border-radius: 7px;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

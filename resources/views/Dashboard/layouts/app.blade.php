@@ -47,7 +47,8 @@
     </header>
 
     {{-- Main Wrapper --}}
-    <div id="main-wrapper" class="flex flex-1 pt-[64px]">
+    <!-- <div id="main-wrapper" class="flex flex-1 pt-[64px] w-full md:ml-[250px] transition-all duration-300"> -->
+    <div id="main-wrapper" class="flex flex-1 pt-[64px] w-full transition-all duration-300">
 
         {{-- Sidebar --}}
         <aside id="sidebar"
@@ -109,11 +110,10 @@
 
 {{-- Custom Script --}}
 <script>
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    const toggleBtn = document.getElementById('label-check');
+    const sidebar   = document.getElementById('sidebar');
+    const overlay   = document.getElementById('sidebar-overlay');
+    const toggleBtn = document.getElementById('sidebarToggle'); // perbaikan di sini
 
-    // Toggle sidebar
     if (toggleBtn) {
         toggleBtn.addEventListener('change', () => {
             if (window.innerWidth < 768) {
@@ -132,7 +132,6 @@
         });
     }
 
-    // Klik overlay untuk close
     if (overlay) {
         overlay.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
@@ -140,6 +139,7 @@
             if (toggleBtn) toggleBtn.checked = false;
         });
     }
+
 
     // Auto hide toast
     document.addEventListener('DOMContentLoaded', () => {
@@ -154,4 +154,3 @@
 </script>
 </body>
 </html>
-    

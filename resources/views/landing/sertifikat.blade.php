@@ -62,13 +62,13 @@
 </section>
 
 <script>
-function sertifikatFilter() {
-  return {
-    tahun: "{{ request('tahun') ?? '' }}",
-    matkul: "{{ request('matkul') ?? '' }}",
-    matkuls: @json($matkulsByTahun ?? []),
-    kelasList: @json($kelasByMatkul ?? []),
-  }
-}
+    function sertifikatFilter() {
+    return {
+        tahun: "{{ request('tahun') ?? '' }}",
+        matkul: "{{ request('matkul') ?? '' }}",
+        matkuls: @json($matkulsByTahun ?? []),
+        kelasList: @json($kelasByMatkul ?? []),
+    }
+    }
 </script>
 @endsection

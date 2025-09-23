@@ -1,7 +1,8 @@
 <!-- resources/views/dashboard/layouts/sidebar.blade.php -->
 <div class="h-full flex flex-col">
     <!-- Navigation -->
-    <ul class="flex flex-col px-3 pt-4 flex-1 overflow-y-auto space-y-1">
+    <ul class="flex flex-col px-3 pt-4 flex-1 overflow-y-auto space-y-1 text-sm md:text-base">
+    <!-- <ul class="flex flex-col px-3 pt-4 flex-1 overflow-y-auto space-y-1"> -->
         @php
             $linkBase = 'flex items-center px-3 py-2 rounded transition';
             $active   = 'bg-blue-500 text-white';

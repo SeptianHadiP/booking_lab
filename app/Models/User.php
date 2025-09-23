@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Str;
+use App\Models\UserProfile;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -20,10 +21,9 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'username',
-        'email',
-        'password',
+        'name', 'username', 'email', 'password',
+        'profile', 'title', 'nip_npm', 'nickname', 'gender',
+        'phone', 'place_of_birth', 'birth_date', 'address',
     ];
 
     /**
@@ -62,5 +62,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new \App\Notifications\CustomVerifyEmail);
     }
-
 }

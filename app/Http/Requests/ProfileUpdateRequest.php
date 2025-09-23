@@ -13,18 +13,24 @@ class ProfileUpdateRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+    public function authorize(): bool
+    {
+        return true;
+    }
     public function rules(): array
     {
+
         return [
+            'profile' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'], // foto profil opsional
             'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
-            ],
+            'title' => ['nullable', 'string', 'max:255'],
+            'nip_npm' => ['nullable', 'string', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            'nickname' => ['nullable', 'string', 'max:255'],
+            'gender' => ['nullable', 'string', 'max:10'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'place_of_birth' => ['nullable', 'string', 'max:255'],
+            'birth_date' => ['nullable', 'date'],
+            'address' => ['nullable', 'string'],
         ];
     }
 }
