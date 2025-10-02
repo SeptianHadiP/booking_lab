@@ -18,12 +18,12 @@
                 <a href="{{ asset('assets/file_template/Nilai_Praktikum_Jaringan_Komputer_1_F3A1.xlsx') }}" target="_blank" download
                 class="text-blue-600 underline hover:text-blue-800 hover:underline font-medium transition">
                     Format Laporan Praktikum
-                </a> (wajib untuk laporan)<br>
+                </a> (wajib untuk laporan)<br>assets/template-test/CV-Septian-Hadi-Prakoso.pdf
                 <p>
                     * File laporan diunggah dalam format <strong>PDF/DOCX</strong> dan file nilai dalam format <strong>Excel</strong>.
                 </p>
             </span>
-        </div>  
+        </div>
     </div>
 
     {{-- Auto Success Toast --}}

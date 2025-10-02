@@ -1,3 +1,4 @@
+<!-- resources/views/dashboard/pages/laporan_pratikum/index.blade.php -->
 @extends('dashboard.layouts.app')
 
 @section('content')
@@ -119,7 +120,7 @@
                 </td>
                 <td class="px-4 py-3 text-gray-600 border">
                     @if($laprak->nilai_file)
-                        <a href="{{ asset('storage/'.$laprak->nilai_file) }}" target="_blank" class="text-blue-600 hover:underline">Lihat Nilai</a>
+                        <a href="{{ asset('storage/', $laprak->nilai_file)  }}" target="_blank" class="text-blue-600 hover:underline">Lihat Nilai</a>
                     @else - @endif
                 </td>
                 <td class="px-4 py-3 text-center border">
@@ -131,6 +132,7 @@
                         $basePath = "assets/generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
                         $hasCertificates = \Illuminate\Support\Facades\Storage::disk('public')->exists($basePath)
                             && count(\Illuminate\Support\Facades\Storage::disk('public')->files($basePath)) > 0;
+                        dump($hasCertificates);
                     @endphp
 
                     @if($hasCertificates)
@@ -150,7 +152,7 @@
                         </button>
                         <div id="dropdown-{{ $laprak->id }}" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 z-20">
                             <ul class="py-1 text-sm text-gray-700 divide-y divide-gray-100">
-                                @can('lihat.laporan-praktek', $laprak)
+                                @can('liat.laporan-praktek', $laprak)
                                 <li>
                                     <a href="{{ route('laprak.show', $laprak->id) }}" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
                                         <i class="bi bi-eye text-blue-500"></i> Lihat

@@ -12,6 +12,7 @@ use App\Http\Controllers\LaporanPraktikumController;
 use App\Http\Controllers\LandingSertifikatController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Storage;
 
 
 // Route::get('/dashboard', function () {
@@ -43,8 +44,20 @@ Route::prefix('sertifikat')->group(function () {
 // });
 
 
+Route::get('/download/{filename}', function ($filename) {
+            // Validasi signed URL
+            // if (! request()->hasValidSignature()) {
+            //     abort(401);
+            // }
+            dump($filename);
+            return response()->download(
+                Storage::disk('public')->path($filename)
+            );
+        })->name('download')->middleware('auth');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // profile Routes
     Route::prefix('profile')->group(function (){
@@ -116,6 +129,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/edit', [LaporanPraktikumController::class, 'edit'])->name('laprak.edit');
         Route::put('/{id}', [LaporanPraktikumController::class, 'update'])->name('laprak.update');
         Route::delete('/{id}', [LaporanPraktikumController::class, 'destroy'])->name('laprak.destroy');
+
+
     });
 
     // Template Sertifikat Routes

@@ -55,9 +55,21 @@ class TemplateController extends Controller
         Log::info('Mulai menyimpan template ke database', $request->all());
 
         try {
-            $filePath = $request->hasFile('template_file')
-                ? $this->generateFilePath($request->file('template_file'), $request->name)
-                : null;
+            $filePath = null;
+
+            if ($request->hasFile('template_file')) {
+                $folderName = $request->name ? Str::slug($request->name) : time();
+                $fileName = time() . '_' . Str::slug(pathinfo($request->file('template_file')->getClientOriginalName(), PATHINFO_FILENAME))
+                        . '.' . $request->file('template_file')->getClientOriginalExtension();
+
+                $filePath = "assets/templates-sertifikat/{$folderName}/{$fileName}";
+
+                Storage::disk('public')->putFileAs(
+                    "assets/templates-sertifikat/{$folderName}",
+                    $request->file('template_file'),
+                    $fileName
+                );
+            }
 
             $template = CertificateTemplate::create([
                 'name'          => $request->name ?? 'Template ' . now()->format('Ymd_His'),
@@ -78,11 +90,42 @@ class TemplateController extends Controller
             ]);
 
             Log::info('Berhasil menyimpan template ke database', ['template_id' => $template->id]);
-            return redirect()->route('template.index')->with('success', 'Template berhasil diperbarui!');
+            return redirect()->route('template.index')->with('success', 'Template berhasil ditambahkan!');
         } catch (\Exception $e) {
-            Log::error('Gagal update template: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Gagal update template!');
+            Log::error('Gagal menyimpan template: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menyimpan template!');
         }
+        // Log::info('Mulai menyimpan template ke database', $request->all());
+
+        // try {
+        //     $filePath = $request->hasFile('template_file')
+        //         ? $this->generateFilePath($request->file('template_file'), $request->name)
+        //         : null;
+
+        //     $template = CertificateTemplate::create([
+        //         'name'          => $request->name ?? 'Template ' . now()->format('Ymd_His'),
+        //         'file_path'     => $filePath,
+        //         'font_color'    => $request->font_color,
+        //         'name_x_type'   => $request->name_x_type,
+        //         'name_x'        => $request->name_x,
+        //         'name_y_type'   => $request->name_y_type,
+        //         'name_y'        => $request->name_y,
+        //         'score_x_type'  => $request->score_x_type,
+        //         'score_x'       => $request->score_x,
+        //         'score_y_type'  => $request->score_y_type,
+        //         'score_y'       => $request->score_y,
+        //         'desc_x_type'   => $request->desc_x_type,
+        //         'desc_x'        => $request->desc_x,
+        //         'desc_y_type'   => $request->desc_y_type,
+        //         'desc_y'        => $request->desc_y,
+        //     ]);
+
+        //     Log::info('Berhasil menyimpan template ke database', ['template_id' => $template->id]);
+        //     return redirect()->route('template.index')->with('success', 'Template berhasil diperbarui!');
+        // } catch (\Exception $e) {
+        //     Log::error('Gagal update template: ' . $e->getMessage());
+        //     return redirect()->back()->with('error', 'Gagal update template!');
+        // }
     }
 
     public function edit($id)
@@ -96,16 +139,25 @@ class TemplateController extends Controller
         $template = CertificateTemplate::findOrFail($id);
 
         try {
-            $filePath = $template->file_path; // default pakai file lama
+            $filePath = $template->file_path; // default: pakai file lama
 
             if ($request->hasFile('template_file')) {
-                // Hapus file lama jika ada
-                if ($template->file_path && file_exists(public_path($template->file_path))) {
-                    unlink(public_path($template->file_path));
+                // Hapus file lama kalau ada
+                if ($template->file_path && Storage::disk('public')->exists($template->file_path)) {
+                    Storage::disk('public')->delete($template->file_path);
                 }
 
-                // Simpan file baru
-                $filePath = $this->generateFilePath($request->file('template_file'), $request->name ?? $template->name);
+                // Simpan file baru ke folder sesuai nama template
+                $folderName = $request->name ? Str::slug($request->name) : Str::slug($template->name);
+                $fileName = time() . '_' . Str::slug(pathinfo($request->file('template_file')->getClientOriginalName(), PATHINFO_FILENAME))
+                        . '.' . $request->file('template_file')->getClientOriginalExtension();
+
+                $filePath = "assets/templates-sertifikat/{$folderName}/{$fileName}";
+                Storage::disk('public')->putFileAs(
+                    "assets/templates-sertifikat/{$folderName}",
+                    $request->file('template_file'),
+                    $fileName
+                );
             }
 
             $template->update([
@@ -131,6 +183,44 @@ class TemplateController extends Controller
             Log::error('Gagal update template: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal update template!');
         }
+        // $template = CertificateTemplate::findOrFail($id);
+
+        // try {
+        //     $filePath = $template->file_path; // default pakai file lama
+
+        //     if ($request->hasFile('template_file')) {
+        //         // Hapus file lama jika ada
+        //         if ($template->file_path && file_exists(public_path($template->file_path))) {
+        //             unlink(public_path($template->file_path));
+        //         }
+
+        //         // Simpan file baru
+        //         $filePath = $this->generateFilePath($request->file('template_file'), $request->name ?? $template->name);
+        //     }
+
+        //     $template->update([
+        //         'name'          => $request->name ?? $template->name,
+        //         'file_path'     => $filePath,
+        //         'font_color'    => $request->font_color,
+        //         'name_x_type'   => $request->name_x_type,
+        //         'name_x'        => $request->name_x,
+        //         'name_y_type'   => $request->name_y_type,
+        //         'name_y'        => $request->name_y,
+        //         'score_x_type'  => $request->score_x_type,
+        //         'score_x'       => $request->score_x,
+        //         'score_y_type'  => $request->score_y_type,
+        //         'score_y'       => $request->score_y,
+        //         'desc_x_type'   => $request->desc_x_type,
+        //         'desc_x'        => $request->desc_x,
+        //         'desc_y_type'   => $request->desc_y_type,
+        //         'desc_y'        => $request->desc_y,
+        //     ]);
+
+        //     return redirect()->route('template.index')->with('success', 'Template berhasil diperbarui!');
+        // } catch (\Exception $e) {
+        //     Log::error('Gagal update template: ' . $e->getMessage());
+        //     return redirect()->back()->with('error', 'Gagal update template!');
+        // }
     }
 
     public function destroy($id)
@@ -138,22 +228,15 @@ class TemplateController extends Controller
         try {
             $template = CertificateTemplate::findOrFail($id);
 
-            if ($template->file_path) {
-                $fullPath = public_path($template->file_path);
+            if ($template->file_path && Storage::disk('public')->exists($template->file_path)) {
+                Storage::disk('public')->delete($template->file_path);
 
-                // Hapus file jika ada
-                if (file_exists($fullPath)) {
-                    unlink($fullPath);
-                }
+                // Coba hapus folder jika kosong
+                $folderPath = dirname($template->file_path);
+                $files = Storage::disk('public')->files($folderPath);
 
-                // Hapus folder jika kosong
-                $folderPath = dirname($fullPath);
-                if (is_dir($folderPath)) {
-                    // Periksa apakah folder kosong
-                    $files = array_diff(scandir($folderPath), ['.', '..']);
-                    if (empty($files)) {
-                        rmdir($folderPath);
-                    }
+                if (empty($files)) {
+                    Storage::disk('public')->deleteDirectory($folderPath);
                 }
             }
 
@@ -164,5 +247,34 @@ class TemplateController extends Controller
             Log::error('Gagal menghapus template: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menghapus template!');
         }
+    //     try {
+    //         $template = CertificateTemplate::findOrFail($id);
+
+    //         if ($template->file_path) {
+    //             $fullPath = public_path($template->file_path);
+
+    //             // Hapus file jika ada
+    //             if (file_exists($fullPath)) {
+    //                 unlink($fullPath);
+    //             }
+
+    //             // Hapus folder jika kosong
+    //             $folderPath = dirname($fullPath);
+    //             if (is_dir($folderPath)) {
+    //                 // Periksa apakah folder kosong
+    //                 $files = array_diff(scandir($folderPath), ['.', '..']);
+    //                 if (empty($files)) {
+    //                     rmdir($folderPath);
+    //                 }
+    //             }
+    //         }
+
+    //         $template->delete();
+
+    //         return redirect()->route('template.index')->with('success', 'Template berhasil dihapus!');
+    //     } catch (\Exception $e) {
+    //         Log::error('Gagal menghapus template: ' . $e->getMessage());
+    //         return redirect()->back()->with('error', 'Gagal menghapus template!');
+    //     }
     }
 }

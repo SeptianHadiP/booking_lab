@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
-
+use Illuminate\Auth\Events\Verified;
+use App\Notifications\CustomWelcomeEmail;
 class RegisteredUserController extends Controller
 {
     /**
@@ -36,17 +37,19 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:'.User::class, 'lowercase', 'alpha_dash'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            //'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($request->username),
         ]);
 
         $user->assignRole($request->role);
+
+        $user->notify(new CustomWelcomeEmail($user));
 
         // event(new Registered($user));
 

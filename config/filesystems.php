@@ -40,13 +40,26 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' =>  '/home/USERNAME/web/domain.com/public_html/assets', //storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
         ],
-
+        // 'public' => [
+        //     'driver' => 'local',
+        //     'root' => '/home/lbs/web/lbs.fasilkom.ubharajaya.ac.id/public_html/storage/public', //storage_path('app/public'),
+        //     'url' => env('APP_URL').'/storage',
+        //     'visibility' => 'public', //'private',
+        //     'throw' => false,
+        //     'report' => false,
+        // ],
+        'hestia_public' => [
+                'driver' => 'local',
+                'root' => '/home/USERNAME/web/domain.com/public_html/assets',
+                'url' => env('APP_URL').'/storage',
+                'visibility' => 'public',
+            ],
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

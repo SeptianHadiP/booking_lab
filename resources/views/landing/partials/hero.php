@@ -10,7 +10,7 @@
     <p class="max-w-2xl mx-auto mb-6">
       Mudahkan reservasi laboratorium di Universitas Bhayangkara. Kelola jadwal, hindari bentrok, dan optimalkan penggunaan sumber daya secara efisien.
     </p>
-    <a href="{{ route('login') }}" class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-3 rounded">
+    <a href="<?php echo route('login'); ?>" class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-3 rounded">
       Mulai Login
     </a>
   </div>

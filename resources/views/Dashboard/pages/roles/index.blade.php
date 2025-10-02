@@ -1,6 +1,8 @@
 <!-- resources/views/dashboard/pages/roles/index.blade.php -->
 @extends('dashboard.layouts.app')
 
+@section('title', 'peran - Bhayangkara University Lab Booking')
+
 @section('content')
 <div class="p-6 bg-white rounded-lg shadow">
 

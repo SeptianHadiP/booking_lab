@@ -9,7 +9,7 @@ class LandingSertifikatController extends Controller
 {
     public function index()
     {
-        $tahunAjar = collect(Storage::disk('public')->directories('generated_certificates'))
+        $tahunAjar = collect(Storage::disk('public')->directories('assets/generated_certificates'))
             ->map(fn($dir) => basename($dir))
             ->toArray();
 
@@ -18,14 +18,14 @@ class LandingSertifikatController extends Controller
         $kelasByMatkul  = [];
 
         foreach ($tahunAjar as $tahun) {
-            $matkuls = collect(Storage::disk('public')->directories("generated_certificates/{$tahun}"))
+            $matkuls = collect(Storage::disk('public')->directories("assets/generated_certificates/{$tahun}"))
                 ->map(fn($dir) => basename($dir))
                 ->toArray();
 
             $matkulsByTahun[$tahun] = $matkuls;
 
             foreach ($matkuls as $mk) {
-                $kelas = collect(Storage::disk('public')->directories("generated_certificates/{$tahun}/{$mk}"))
+                $kelas = collect(Storage::disk('public')->directories("assets/generated_certificates/{$tahun}/{$mk}"))
                     ->map(fn($dir) => basename($dir))
                     ->toArray();
 
@@ -47,13 +47,13 @@ class LandingSertifikatController extends Controller
         $kelas  = $request->kelas;
 
         // Ambil semua tahun ajar untuk dropdown
-        $tahunAjar = collect(Storage::disk('public')->directories('generated_certificates'))
+        $tahunAjar = collect(Storage::disk('public')->directories('assets/generated_certificates'))
             ->map(fn($dir) => basename($dir))
             ->toArray();
 
         $files = [];
         if ($tahun && $matkul && $kelas) {
-            $basePath = "generated_certificates/{$tahun}/{$matkul}/{$kelas}";
+            $basePath = "assets/generated_certificates/{$tahun}/{$matkul}/{$kelas}";
             if (Storage::disk('public')->exists($basePath)) {
                 $files = Storage::disk('public')->files($basePath);
             }

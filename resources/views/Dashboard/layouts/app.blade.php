@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <title>{{ config('app.name', 'LabSchedule') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('assets/img/Logo/Logo_ubhara.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ asset('assets/img/Logo/Logo_ubhara.png') }}" type="image/png">
 
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com"></script>

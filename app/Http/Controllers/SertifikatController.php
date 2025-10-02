@@ -32,118 +32,207 @@ class SertifikatController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'laprak_id'   => 'required|exists:laporan_praktikum,id',
-            'template_id' => 'required|exists:certificate_templates,id',
-        ]);
+            $validated = $request->validate([
+                'laprak_id'   => 'required|exists:laporan_praktikum,id',
+                'template_id' => 'required|exists:certificate_templates,id',
+            ]);
 
-        $template = CertificateTemplate::findOrFail($validated['template_id']);
-        $laprak   = LaporanPraktikum::with(['user','mata_kuliah_praktikum','kelas','semester'])
-                    ->findOrFail($validated['laprak_id']);
+            $template = CertificateTemplate::findOrFail($validated['template_id']);
+            $laprak   = LaporanPraktikum::with(['user','mata_kuliah_praktikum','kelas','semester'])
+                        ->findOrFail($validated['laprak_id']);
 
-        // Ambil file excel dari laporan praktikum
-        $nilaiFilePath = $laprak->nilai_file;
-
-        // Pastikan path ada assets/
-        if (!Str::startsWith($nilaiFilePath, 'assets/')) {
-            $nilaiFilePath = 'assets/' . $nilaiFilePath;
-        }
-
-        // $excelPath = public_path($nilaiFilePath);
-
-        $excelPath = Storage::disk('public')->path($laprak->nilai_file);
-
-        if (!$laprak->nilai_file || !Storage::disk('public')->exists($laprak->nilai_file)) {
-            throw new \Exception('File nilai tidak ditemukan: ' . $laprak->nilai_file);
-        }
-        $rows = Excel::toArray([], $excelPath)[0];
-
-        if (empty($rows) || empty($rows[0])) {
-            throw new \Exception('Data nilai kosong atau tidak valid.');
-        }
-
-        // Background image base64
-        $bgImagePath = public_path($template->file_path);
-        if (!file_exists($bgImagePath)) {
-            return back()->with('error', 'Background template tidak ditemukan.');
-        }
-
-        $bgImageBase64 = 'data:' . mime_content_type($bgImagePath) . ';base64,' . base64_encode(file_get_contents($bgImagePath));
-
-        $options = [
-            'isRemoteEnabled'      => true,
-            'isHtml5ParserEnabled' => true,
-            'chroot'               => public_path(),
-        ];
-
-        $generatedCertificates = [];
-
-        // Ambil data untuk folder
-        $tahunAjaran   = Str::slug(str_replace('/', '-', $laprak->semester->tahun_ajar ?? date('Y', strtotime($laprak->semester->start_date))));
-        $mataKuliah   = Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
-        $kelas        = Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
-
-        // Susunan folder
-        $basePath = "assets/generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
-
-        foreach ($rows as $index => $row) {
-            if ($index < 6) continue;
-
-            $name   = trim($row[2] ?? '');
-            $scoreValue = trim($row[3] ?? 0);
-
-            // Konversi angka ke grade
-            if ($scoreValue >= 85) {
-                $grade = 'A';
-            } elseif ($scoreValue >= 70) {
-                $grade = 'B';
-            } elseif ($scoreValue >= 55) {
-                $grade = 'C';
-            } else {
-                $grade = 'D';
+            // Pastikan file nilai ada di storage public
+            if (!$laprak->nilai_file || !Storage::disk('public')->exists($laprak->nilai_file)) {
+                throw new \Exception('File nilai tidak ditemukan: ' . $laprak->nilai_file);
             }
-            $course = trim($rows[2][2] ?? 'Telah Mengikuti');
 
-            if (!$name) continue;
+            $excelPath = Storage::disk('public')->path($laprak->nilai_file);
+            $rows = Excel::toArray([], $excelPath)[0];
 
-            $viewData = [
-                'name'      => $name,
-                'score'     => $grade,
-                'course'    => $course,
-                'bgImage'   => $bgImageBase64,
-                'template'  => $template,
-                'fontColor' => $template->font_color ?? '#000000',
-                'nameX'     => $template->name_x,
-                'nameY'     => $template->name_y,
-                'nameXType' => $template->name_x_type,
-                'nameYType' => $template->name_y_type,
-                'scoreX'    => $template->score_x,
-                'scoreY'    => $template->score_y,
-                'scoreXType'=> $template->score_x_type,
-                'scoreYType'=> $template->score_y_type,
-                'descX'     => $template->desc_x,
-                'descY'     => $template->desc_y,
-                'descXType' => $template->desc_x_type,
-                'descYType' => $template->desc_y_type,
+            if (empty($rows) || empty($rows[0])) {
+                throw new \Exception('Data nilai kosong atau tidak valid.');
+            }
+
+            // Background image template
+            if (!$template->file_path || !Storage::disk('public')->exists($template->file_path)) {
+                return back()->with('error', 'Background template tidak ditemukan.');
+            }
+            $bgImagePath = Storage::disk('public')->path($template->file_path);
+            $bgImageBase64 = 'data:' . mime_content_type($bgImagePath) . ';base64,' . base64_encode(file_get_contents($bgImagePath));
+
+            $options = [
+                'isRemoteEnabled'      => true,
+                'isHtml5ParserEnabled' => true,
+                'chroot'               => public_path(),
             ];
 
-            $pdf = Pdf::setOptions($options)
-                ->loadView('dashboard.pages.certificates.pdf-certificate', $viewData)
-                ->setPaper('a4', 'landscape');
+            $generatedCertificates = [];
 
-            // Nama file -> nama_mahasiswa + timestamp
-            $filename = Str::slug($name) . '_' . now()->format('Ymd-His') . '.pdf';
+            $tahunAjaran = Str::slug(str_replace('/', '-', $laprak->semester->tahun_ajar ?? date('Y', strtotime($laprak->semester->start_date))));
+            $mataKuliah  = Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
+            $kelas       = Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
 
-            // Simpan ke folder yang rapi
-            Storage::disk('public')->put("{$basePath}/{$filename}", $pdf->output());
+            $basePath = "assets/generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
 
-            $generatedCertificates[] = "{$basePath}/{$filename}";
-        }
+            foreach ($rows as $index => $row) {
+                if ($index < 6) continue;
 
-        return view('dashboard.pages.certificates.result-certificate', [
-            'files'    => $generatedCertificates,
-            'laprakId' => $laprak->id,
-        ])->with('success', 'Sertifikat berhasil dibuat.');
+                $name       = trim($row[2] ?? '');
+                $scoreValue = trim($row[3] ?? 0);
+
+                if (!$name) continue;
+
+                $grade = $scoreValue >= 85 ? 'A' : ($scoreValue >= 70 ? 'B' : ($scoreValue >= 55 ? 'C' : 'D'));
+                $course = trim($rows[2][2] ?? 'Telah Mengikuti');
+
+                $viewData = [
+                    'name'      => $name,
+                    'score'     => $grade,
+                    'course'    => $course,
+                    'bgImage'   => $bgImageBase64,
+                    'template'  => $template,
+                    'fontColor' => $template->font_color ?? '#000000',
+                    'nameX'     => $template->name_x,
+                    'nameY'     => $template->name_y,
+                    'nameXType' => $template->name_x_type,
+                    'nameYType' => $template->name_y_type,
+                    'scoreX'    => $template->score_x,
+                    'scoreY'    => $template->score_y,
+                    'scoreXType'=> $template->score_x_type,
+                    'scoreYType'=> $template->score_y_type,
+                    'descX'     => $template->desc_x,
+                    'descY'     => $template->desc_y,
+                    'descXType' => $template->desc_x_type,
+                    'descYType' => $template->desc_y_type,
+                ];
+
+                $pdf = Pdf::setOptions($options)
+                    ->loadView('dashboard.pages.certificates.pdf-certificate', $viewData)
+                    ->setPaper('a4', 'landscape');
+
+                $filename = Str::slug($name) . '_' . now()->format('Ymd-His') . '.pdf';
+
+                Storage::disk('public')->put("assets/{$basePath}/{$filename}", $pdf->output());
+
+                $generatedCertificates[] = "assets/{$basePath}/{$filename}";
+            }
+
+            return view('dashboard.pages.certificates.result-certificate', [
+                'files'    => $generatedCertificates,
+                'laprakId' => $laprak->id,
+            ])->with('success', 'Sertifikat berhasil dibuat.');
+        // $validated = $request->validate([
+        //     'laprak_id'   => 'required|exists:laporan_praktikum,id',
+        //     'template_id' => 'required|exists:certificate_templates,id',
+        // ]);
+
+        // $template = CertificateTemplate::findOrFail($validated['template_id']);
+        // $laprak   = LaporanPraktikum::with(['user','mata_kuliah_praktikum','kelas','semester'])
+        //             ->findOrFail($validated['laprak_id']);
+
+        // // Ambil file excel dari laporan praktikum
+        // $nilaiFilePath = $laprak->nilai_file;
+
+        // // Pastikan path ada assets/
+        // if (!Str::startsWith($nilaiFilePath, 'assets/')) {
+        //     $nilaiFilePath = 'assets/' . $nilaiFilePath;
+        // }
+
+        // // $excelPath = public_path($nilaiFilePath);
+
+        // $excelPath = Storage::disk('public')->path($laprak->nilai_file);
+
+        // if (!$laprak->nilai_file || !Storage::disk('public')->exists($laprak->nilai_file)) {
+        //     throw new \Exception('File nilai tidak ditemukan: ' . $laprak->nilai_file);
+        // }
+        // $rows = Excel::toArray([], $excelPath)[0];
+
+        // if (empty($rows) || empty($rows[0])) {
+        //     throw new \Exception('Data nilai kosong atau tidak valid.');
+        // }
+
+        // // Background image base64
+        // $bgImagePath = public_path($template->file_path);
+        // if (!file_exists($bgImagePath)) {
+        //     return back()->with('error', 'Background template tidak ditemukan.');
+        // }
+
+        // $bgImageBase64 = 'data:' . mime_content_type($bgImagePath) . ';base64,' . base64_encode(file_get_contents($bgImagePath));
+
+        // $options = [
+        //     'isRemoteEnabled'      => true,
+        //     'isHtml5ParserEnabled' => true,
+        //     'chroot'               => public_path(),
+        // ];
+
+        // $generatedCertificates = [];
+
+        // // Ambil data untuk folder
+        // $tahunAjaran   = Str::slug(str_replace('/', '-', $laprak->semester->tahun_ajar ?? date('Y', strtotime($laprak->semester->start_date))));
+        // $mataKuliah   = Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
+        // $kelas        = Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
+
+        // // Susunan folder
+        // $basePath = "assets/generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
+
+        // foreach ($rows as $index => $row) {
+        //     if ($index < 6) continue;
+
+        //     $name   = trim($row[2] ?? '');
+        //     $scoreValue = trim($row[3] ?? 0);
+
+        //     // Konversi angka ke grade
+        //     if ($scoreValue >= 85) {
+        //         $grade = 'A';
+        //     } elseif ($scoreValue >= 70) {
+        //         $grade = 'B';
+        //     } elseif ($scoreValue >= 55) {
+        //         $grade = 'C';
+        //     } else {
+        //         $grade = 'D';
+        //     }
+        //     $course = trim($rows[2][2] ?? 'Telah Mengikuti');
+
+        //     if (!$name) continue;
+
+        //     $viewData = [
+        //         'name'      => $name,
+        //         'score'     => $grade,
+        //         'course'    => $course,
+        //         'bgImage'   => $bgImageBase64,
+        //         'template'  => $template,
+        //         'fontColor' => $template->font_color ?? '#000000',
+        //         'nameX'     => $template->name_x,
+        //         'nameY'     => $template->name_y,
+        //         'nameXType' => $template->name_x_type,
+        //         'nameYType' => $template->name_y_type,
+        //         'scoreX'    => $template->score_x,
+        //         'scoreY'    => $template->score_y,
+        //         'scoreXType'=> $template->score_x_type,
+        //         'scoreYType'=> $template->score_y_type,
+        //         'descX'     => $template->desc_x,
+        //         'descY'     => $template->desc_y,
+        //         'descXType' => $template->desc_x_type,
+        //         'descYType' => $template->desc_y_type,
+        //     ];
+
+        //     $pdf = Pdf::setOptions($options)
+        //         ->loadView('dashboard.pages.certificates.pdf-certificate', $viewData)
+        //         ->setPaper('a4', 'landscape');
+
+        //     // Nama file -> nama_mahasiswa + timestamp
+        //     $filename = Str::slug($name) . '_' . now()->format('Ymd-His') . '.pdf';
+
+        //     // Simpan ke folder yang rapi
+        //     Storage::disk('public')->put("{$basePath}/{$filename}", $pdf->output());
+
+        //     $generatedCertificates[] = "{$basePath}/{$filename}";
+        // }
+
+        // return view('dashboard.pages.certificates.result-certificate', [
+        //     'files'    => $generatedCertificates,
+        //     'laprakId' => $laprak->id,
+        // ])->with('success', 'Sertifikat berhasil dibuat.');
     }
 
     /**
@@ -163,3 +252,121 @@ class SertifikatController extends Controller
     }
 
 }
+
+
+
+// public function store(Request $request)
+//     {
+//         $validated = $request->validate([
+//             'laprak_id'   => 'required|exists:laporan_praktikum,id',
+//             'template_id' => 'required|exists:certificate_templates,id',
+//         ]);
+
+//         $template = CertificateTemplate::findOrFail($validated['template_id']);
+//         $laprak   = LaporanPraktikum::with(['user','mata_kuliah_praktikum','kelas','semester'])
+//                     ->findOrFail($validated['laprak_id']);
+
+//         // Ambil file excel dari laporan praktikum
+//         $nilaiFilePath = $laprak->nilai_file;
+
+//         // Pastikan path ada assets/
+//         if (!Str::startsWith($nilaiFilePath, 'assets/')) {
+//             $nilaiFilePath = 'assets/' . $nilaiFilePath;
+//         }
+
+//         // $excelPath = public_path($nilaiFilePath);
+
+//         $excelPath = Storage::disk('public')->path($laprak->nilai_file);
+
+//         if (!$laprak->nilai_file || !Storage::disk('public')->exists($laprak->nilai_file)) {
+//             throw new \Exception('File nilai tidak ditemukan: ' . $laprak->nilai_file);
+//         }
+//         $rows = Excel::toArray([], $excelPath)[0];
+
+//         if (empty($rows) || empty($rows[0])) {
+//             throw new \Exception('Data nilai kosong atau tidak valid.');
+//         }
+
+//         // Background image base64
+//         $bgImagePath = public_path($template->file_path);
+//         if (!file_exists($bgImagePath)) {
+//             return back()->with('error', 'Background template tidak ditemukan.');
+//         }
+
+//         $bgImageBase64 = 'data:' . mime_content_type($bgImagePath) . ';base64,' . base64_encode(file_get_contents($bgImagePath));
+
+//         $options = [
+//             'isRemoteEnabled'      => true,
+//             'isHtml5ParserEnabled' => true,
+//             'chroot'               => public_path(),
+//         ];
+
+//         $generatedCertificates = [];
+
+//         // Ambil data untuk folder
+//         $tahunAjaran   = Str::slug(str_replace('/', '-', $laprak->semester->tahun_ajar ?? date('Y', strtotime($laprak->semester->start_date))));
+//         $mataKuliah   = Str::slug($laprak->mata_kuliah_praktikum->nama_mata_kuliah ?? 'mata-kuliah');
+//         $kelas        = Str::slug($laprak->kelas->nama_kelas ?? 'kelas');
+
+//         // Susunan folder
+//         $basePath = "assets/generated_certificates/{$tahunAjaran}/{$mataKuliah}/{$kelas}";
+
+//         foreach ($rows as $index => $row) {
+//             if ($index < 6) continue;
+
+//             $name   = trim($row[2] ?? '');
+//             $scoreValue = trim($row[3] ?? 0);
+
+//             // Konversi angka ke grade
+//             if ($scoreValue >= 85) {
+//                 $grade = 'A';
+//             } elseif ($scoreValue >= 70) {
+//                 $grade = 'B';
+//             } elseif ($scoreValue >= 55) {
+//                 $grade = 'C';
+//             } else {
+//                 $grade = 'D';
+//             }
+//             $course = trim($rows[2][2] ?? 'Telah Mengikuti');
+
+//             if (!$name) continue;
+
+//             $viewData = [
+//                 'name'      => $name,
+//                 'score'     => $grade,
+//                 'course'    => $course,
+//                 'bgImage'   => $bgImageBase64,
+//                 'template'  => $template,
+//                 'fontColor' => $template->font_color ?? '#000000',
+//                 'nameX'     => $template->name_x,
+//                 'nameY'     => $template->name_y,
+//                 'nameXType' => $template->name_x_type,
+//                 'nameYType' => $template->name_y_type,
+//                 'scoreX'    => $template->score_x,
+//                 'scoreY'    => $template->score_y,
+//                 'scoreXType'=> $template->score_x_type,
+//                 'scoreYType'=> $template->score_y_type,
+//                 'descX'     => $template->desc_x,
+//                 'descY'     => $template->desc_y,
+//                 'descXType' => $template->desc_x_type,
+//                 'descYType' => $template->desc_y_type,
+//             ];
+
+//             $pdf = Pdf::setOptions($options)
+//                 ->loadView('dashboard.pages.certificates.pdf-certificate', $viewData)
+//                 ->setPaper('a4', 'landscape');
+
+//             // Nama file -> nama_mahasiswa + timestamp
+//             $filename = Str::slug($name) . '_' . now()->format('Ymd-His') . '.pdf';
+
+//             // Simpan ke folder yang rapi
+//             Storage::disk('public')->put("{$basePath}/{$filename}", $pdf->output());
+
+//             $generatedCertificates[] = "{$basePath}/{$filename}";
+//         }
+
+//         return view('dashboard.pages.certificates.result-certificate', [
+//             'files'    => $generatedCertificates,
+//             'laprakId' => $laprak->id,
+//         ])->with('success', 'Sertifikat berhasil dibuat.');
+//     }

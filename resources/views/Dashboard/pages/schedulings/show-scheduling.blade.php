@@ -67,73 +67,76 @@
             <div>
                 <strong>📸 Dokumentasi Praktikum:</strong>
                 <div class="mt-3 p-4 border rounded-lg bg-gray-50">
-                    @if ($schedule->documentation)
-                        <div class="flex justify-between mb-4 text-gray-700">
-                            <div>
-                                <span class="font-semibold">Buat oleh:</span>
-                                <span>{{ $schedule->documentation->nama ?? '-' }}</span>
-                            </div>
-                            <div>
-                                {{ $schedule->documentation->created_at->format('d M Y (H:i)') }}
-                            </div>
-                        </div>
+                    @if ($schedule->documentation->count() > 0)
+                        @foreach ($schedule->documentation as $doc)
+                            <div class="mb-6 border-b pb-4">
+                                <div class="flex justify-between mb-4 text-gray-700">
+                                    <div>
+                                        <span class="font-semibold">Buat oleh:</span>
+                                        <span>{{ $doc->nama ?? '-' }}</span>
+                                    </div>
+                                    <div>
+                                        {{ $doc->created_at->format('d M Y (H:i)') }}
+                                    </div>
+                                </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {{-- Foto 1 --}}
-                            <div class="text-center p-4 bg-white border rounded-lg shadow">
-                                <strong>Foto 1</strong>
-                                @if ($schedule->documentation->foto_1)
-                                    <img src="{{ asset('storage/' . $schedule->documentation->foto_1) }}"
-                                        alt="Foto 1"
-                                        class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
-                                        data-img="{{ asset('storage/' . $schedule->documentation->foto_1) }}">
-                                @else
-                                    <p class="text-gray-400 mt-2">Tidak ada foto</p>
-                                @endif
-                            </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {{-- Foto 1 --}}
+                                    <div class="text-center p-4 bg-white border rounded-lg shadow">
+                                        <strong>Foto 1</strong>
+                                        @if ($doc->foto_1)
+                                            <img src="{{ asset('storage/' . $doc->foto_1) }}"
+                                                alt="Foto 1"
+                                                class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
+                                                data-img="{{ asset('storage/' . $doc->foto_1) }}">
+                                        @else
+                                            <p class="text-gray-400 mt-2">Tidak ada foto</p>
+                                        @endif
+                                    </div>
 
-                            {{-- Absen 1 --}}
-                            <div class="text-center p-4 bg-white border rounded-lg shadow">
-                                <strong>Foto Absen 1</strong>
-                                @if ($schedule->documentation->absen_1)
-                                    <img src="{{ Storage::url($schedule->documentation->absen_1) }}"
-                                        alt="Absen 1"
-                                        class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
-                                        data-img="{{ Storage::url($schedule->documentation->absen_1) }}">
-                                @else
-                                    <p class="text-gray-400 mt-2">Tidak ada foto absen</p>
-                                @endif
-                            </div>
-                        </div>
+                                    {{-- Absen 1 --}}
+                                    <div class="text-center p-4 bg-white border rounded-lg shadow">
+                                        <strong>Foto Absen 1</strong>
+                                        @if ($doc->absen_1)
+                                            <img src="{{ Storage::url($doc->absen_1) }}"
+                                                alt="Absen 1"
+                                                class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
+                                                data-img="{{ Storage::url($doc->absen_1) }}">
+                                        @else
+                                            <p class="text-gray-400 mt-2">Tidak ada foto absen</p>
+                                        @endif
+                                    </div>
+                                </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                            {{-- Foto 2 --}}
-                            <div class="text-center p-4 bg-white border rounded-lg shadow">
-                                <strong>Foto 2</strong>
-                                @if ($schedule->documentation->foto_2)
-                                    <img src="{{ asset('storage/' . $schedule->documentation->foto_2) }}"
-                                        alt="Foto 2"
-                                        class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
-                                        data-img="{{ asset('storage/' . $schedule->documentation->foto_2) }}">
-                                @else
-                                    <p class="text-gray-400 mt-2">Tidak ada foto</p>
-                                @endif
-                            </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    {{-- Foto 2 --}}
+                                    <div class="text-center p-4 bg-white border rounded-lg shadow">
+                                        <strong>Foto 2</strong>
+                                        @if ($doc->foto_2)
+                                            <img src="{{ asset('storage/' . $doc->foto_2) }}"
+                                                alt="Foto 2"
+                                                class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
+                                                data-img="{{ asset('storage/' . $doc->foto_2) }}">
+                                        @else
+                                            <p class="text-gray-400 mt-2">Tidak ada foto</p>
+                                        @endif
+                                    </div>
 
-                            {{-- Absen 2 --}}
-                            <div class="text-center p-4 bg-white border rounded-lg shadow">
-                                <strong>Foto Absen 2</strong>
-                                @if ($schedule->documentation->absen_2)
-                                    <img src="{{ Storage::url($schedule->documentation->absen_2) }}"
-                                        alt="Absen 2"
-                                        class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
-                                        data-img="{{ Storage::url($schedule->documentation->absen_2) }}">
-                                @else
-                                    <p class="text-gray-400 mt-2">Tidak ada foto absen</p>
-                                @endif
+                                    {{-- Absen 2 --}}
+                                    <div class="text-center p-4 bg-white border rounded-lg shadow">
+                                        <strong>Foto Absen 2</strong>
+                                        @if ($doc->absen_2)
+                                            <img src="{{ Storage::url($doc->absen_2) }}"
+                                                alt="Absen 2"
+                                                class="mt-2 w-full h-60 object-cover rounded cursor-pointer popup-img"
+                                                data-img="{{ Storage::url($doc->absen_2) }}">
+                                        @else
+                                            <p class="text-gray-400 mt-2">Tidak ada foto absen</p>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
+                        @endforeach
                     @else
                         <p class="text-gray-400">Belum ada dokumentasi untuk jadwal ini.</p>
                     @endif

@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laboratory Booking System</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <style>
-    html { scroll-behavior: smooth; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratory Booking System</title>
+    <link rel="icon" href="{{ asset('assets/img/Logo/Logo_ubhara.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ asset('assets/img/Logo/Logo_ubhara.png') }}" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+    </style>
 </head>
 <body class="antialiased">
 
-  {{-- Navbar --}}
-  @include('landing.partials.header')
+    {{-- Navbar --}}
+    @include('landing.partials.header')
 
-  {{-- Content Halaman --}}
-  @yield('content')
+    {{-- Content Halaman --}}
+    @yield('content')
 
-  {{-- Footer --}}
-  @include('landing.partials.footer')
+    {{-- Footer --}}
+    @include('landing.partials.footer')
 
 </body>
 </html>
